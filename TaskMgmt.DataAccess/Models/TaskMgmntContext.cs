@@ -21,6 +21,7 @@ namespace TaskMgmt.DataAccess.Models
         public virtual DbSet<Project> Projects { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<UserGroup> UserGroups { get; set; } = null!;
+        public DbSet<TaskStatus> TaskStatuses { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
