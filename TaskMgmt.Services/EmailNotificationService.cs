@@ -8,7 +8,7 @@ namespace TaskMgmt.Services
 
         public EmailNotificationService()
         {
-
+            
         }
 
         Task INotificationService.BulkNotifyAsync(IEnumerable<string> recipientIds, string subject, string message)
