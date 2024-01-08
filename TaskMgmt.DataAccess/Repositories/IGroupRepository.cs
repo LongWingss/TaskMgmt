@@ -3,7 +3,8 @@ namespace TaskMgmt.DataAccess.Repositories
 {
     public interface IGroupRepository
     {
-        public Task<Group> Get();
-        public Task<int> Add(Group group);
+        public Task<Group> GetById(int id);
+        public Task<Group[]> GetAll();
+        public Task<Group> Add(Group group);
     }
 }
