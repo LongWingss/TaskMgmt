@@ -11,12 +11,12 @@ namespace TaskMgmt.Services
             
         }
 
-        Task INotificationService.BulkNotifyAsync(IEnumerable<string> recipientIds, string subject, string message)
+        public Task BulkNotifyAsync(IEnumerable<string> recipientIds, string subject, string message)
         {
             throw new NotImplementedException();
         }
 
-        Task INotificationService.NotifyAsync(string recipientId, string subject, string message)
+        public Task NotifyAsync(string recipientId, string subject, string message)
         {
             throw new NotImplementedException();
         }
