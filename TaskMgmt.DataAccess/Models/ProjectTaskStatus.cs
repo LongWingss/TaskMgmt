@@ -2,9 +2,9 @@
 
 namespace TaskMgmt.DataAccess.Models
 {
-    public class TaskStatus
+    public class ProjectTaskStatus
     {
-        public int StatusId { get; set; }
+        public int ProjectTaskStatusId { get; set; }
         public int ProjectId { get; set; }
         [MaxLength(20)]
         public string StatusText { get; set; } = null!;
