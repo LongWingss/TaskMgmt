@@ -1,56 +1,59 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TaskMgmt.DataAccess.Models;
 
 namespace TaskMgmt.DataAccess.Repositories
 {
-    
+
     public class ProjectRepository : IProjectRepository
     {
         private readonly TaskMgmntContext _dbcontext;
-        public ProjectRepository(TaskMgmntContext dbcontext) 
-        { 
+        public ProjectRepository(TaskMgmntContext dbcontext)
+        {
             _dbcontext = dbcontext;
         }
 
-        public async Task Create(Project project)
+        public async Task<IEnumerable<Project>> GetAllAsync(int groupId)
         {
-            await _dbcontext.AddAsync(project);
+            return await _dbcontext.Projects.Where(p => p.GroupId == groupId).ToListAsync();
+        }
+
+        public async Task<Project?> GetByIdAsync(int groupId, int id)
+        {
+            return await _dbcontext.Projects.FirstOrDefaultAsync(p => p.GroupId == groupId && p.ProjectId == id);
+        }
+
+        public async Task CreateAsync(int groupId, Project project)
+        {
+            if (project.GroupId != groupId)
+            {
+                throw new ArgumentException("Mismatched Group Id.");
+            }
+            _dbcontext.Projects.Add(project);
             await _dbcontext.SaveChangesAsync();
         }
 
-        public async Task Delete(int id)
+        public async Task EditAsync(int groupId, int id, Project project)
         {
-            if (id == null)
+            if (id != project.ProjectId || groupId != project.GroupId)
             {
-                throw new ArgumentNullException($"Project with id {id} not found.");
+                throw new ArgumentException("Mismatched ID or Group ID.");
             }
-            var project = await GetById(id);
+
+            _dbcontext.Entry(project).State = EntityState.Modified;
+            await _dbcontext.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int groupId, int id)
+        {
+            var project = await _dbcontext.Projects.FirstOrDefaultAsync(p => p.GroupId == groupId && p.ProjectId == id);
             if (project == null)
             {
-                throw new InvalidOperationException("Project not found");
+                throw new InvalidOperationException("Project not found.");
             }
-            _dbcontext.Remove(project);
+
+            _dbcontext.Projects.Remove(project);
             await _dbcontext.SaveChangesAsync();
         }
 
-        public Task Edit(int id, Project project)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Project> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Project> GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
