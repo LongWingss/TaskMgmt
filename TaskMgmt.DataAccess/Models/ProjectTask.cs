@@ -2,12 +2,18 @@
 {
     public class ProjectTask
     {
-        public int TaskId { get; set; }
+        public int ProjectTaskId { get; set; }
         public string Description { get; set; } = null!;
+        public DateTime CreatedAt { get; set; }
+        public DateTime DueDate { get; set; }
+        public int AssigneeId { get; set; }
+        public int CreatorId { get; set; }
         public int ProjectId { get; set; }
         public int StatusId { get; set; }
 
-        public TaskStatus TaskStatus { get; set; } = null!;
+        public User Assignee { get; set; } = null!;
+        public User Creator { get; set; } = null!;
         public Project Project { get; set; } = null!;
+        public TaskStatus CurrentStatus { get; set; } = null!;
     }
 }

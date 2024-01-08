@@ -5,31 +5,30 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace TaskMgmt.DataAccess.Models
 {
-    public partial class TaskMgmntContext : DbContext
+    public class TaskMgmntContext : DbContext
     {
-        public TaskMgmntContext()
-        {
-        }
-
         public TaskMgmntContext(DbContextOptions<TaskMgmntContext> options)
             : base(options)
         {
         }
 
-        public virtual DbSet<Group> Groups { get; set; } = null!;
-        public virtual DbSet<Invitation> Invitations { get; set; } = null!;
-        public virtual DbSet<Project> Projects { get; set; } = null!;
-        public virtual DbSet<User> Users { get; set; } = null!;
-        public virtual DbSet<UserGroup> UserGroups { get; set; } = null!;
-        public DbSet<TaskStatus> TaskStatuses { get; set; } = null!;
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Group> Groups { get; set; } = null!;
+        public DbSet<UserGroup> UserGroups { get; set; } = null!;
+        public DbSet<Invitation> Invitations { get; set; } = null!;
+        public DbSet<Project> Projects { get; set; } = null!;
         public DbSet<ProjectTask> ProjectTasks { get; set; } = null!;
+        public DbSet<TaskStatus> TaskStatuses { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=127.0.0.1,1405;Database=TaskMgmnt;User Id=SA;Password=Sql@2022!;");
+                optionsBuilder.UseSqlServer(
+                    @"Server=127.0.0.1,1405;
+                    Database=TaskMgmnt;
+                    User Id=SA;
+                    Password=Sql@2022!;");
             }
         }
 
@@ -129,10 +128,6 @@ namespace TaskMgmt.DataAccess.Models
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__UserGroup__UserI__3F466844");
             });
-
-            OnModelCreatingPartial(modelBuilder);
         }
-
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
