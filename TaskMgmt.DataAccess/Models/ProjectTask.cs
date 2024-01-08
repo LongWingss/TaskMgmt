@@ -14,6 +14,6 @@
         public User Assignee { get; set; } = null!;
         public User Creator { get; set; } = null!;
         public Project Project { get; set; } = null!;
-        public TaskStatus CurrentStatus { get; set; } = null!;
+        public ProjectTaskStatus CurrentStatus { get; set; } = null!;
     }
 }

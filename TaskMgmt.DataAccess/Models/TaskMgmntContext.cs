@@ -13,7 +13,7 @@ namespace TaskMgmt.DataAccess.Models
         public DbSet<Invitation> Invitations { get; set; } = null!;
         public DbSet<Project> Projects { get; set; } = null!;
         public DbSet<ProjectTask> ProjectTasks { get; set; } = null!;
-        public DbSet<TaskStatus> TaskStatuses { get; set; } = null!;
+        public DbSet<ProjectTaskStatus> ProjectTaskStatuses { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -40,7 +40,7 @@ namespace TaskMgmt.DataAccess.Models
                 .HasForeignKey(e => e.OwnerId)
                 .IsRequired();
 
-            modelBuilder.Entity<TaskStatus>().HasIndex(e => new { e.ProjectId, e.StatusText })
+            modelBuilder.Entity<ProjectTaskStatus>().HasIndex(e => new { e.ProjectId, e.StatusText })
                 .IsUnique();
 
             modelBuilder.Entity<ProjectTask>(
@@ -60,7 +60,7 @@ namespace TaskMgmt.DataAccess.Models
                         .IsRequired();
                 });
             
-            modelBuilder.Entity<TaskStatus>().HasOne(e => e.Project)
+            modelBuilder.Entity<ProjectTaskStatus>().HasOne(e => e.Project)
                     .WithMany()
                     .HasPrincipalKey(e => e.ProjectId)
                     .HasForeignKey(e => e.ProjectId)
