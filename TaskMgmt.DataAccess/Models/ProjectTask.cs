@@ -9,7 +9,7 @@
         public int AssigneeId { get; set; }
         public int CreatorId { get; set; }
         public int ProjectId { get; set; }
-        public int StatusId { get; set; }
+        public int CurrentStatusId { get; set; }
 
         public User Assignee { get; set; } = null!;
         public User Creator { get; set; } = null!;
