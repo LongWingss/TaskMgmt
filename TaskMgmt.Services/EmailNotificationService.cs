@@ -1,46 +1,67 @@
 ﻿using TaskMgmt.Services.Interfaces;
 using MailKit.Net.Smtp;
 using MimeKit;
-using System;
-using System.Net.Mail;
 
 namespace TaskMgmt.Services
 {
 
     public class EmailNotificationService : INotificationService
     {
+        private readonly SmtpClient _client;
+
+        private const string SenderEmail = "taskmngement@gmail.com";
+        private const string SenderPassword = "pfwz ljoc mwct difx";
 
         public EmailNotificationService()
         {
-
+            _client = new SmtpClient();
+            _client.Connect("smtp.gmail.com", 465, true);
+            _client.Authenticate(SenderEmail, SenderPassword);
         }
 
-        Task INotificationService.BulkNotifyAsync(IEnumerable<string> recipientIds, string subject, string message)
+        public async Task BulkNotifyAsync(IEnumerable<string> recipientIds, string subject, string message)
         {
-            throw new NotImplementedException();
+            var text = CreateEmailMessage(recipientIds, subject, message);
+            await SendEmailAsync(text);
         }
 
-        async Task INotificationService.NotifyAsync(string recipientId, string subject, string message)
+        public async Task NotifyAsync(string recipientId, string subject, string message)
         {
+            var text = CreateEmailMessage(new List<string> { recipientId }, subject, message);
+            await SendEmailAsync(text);
+        }
 
+        private MimeMessage CreateEmailMessage(IEnumerable<string> recipientIds, string subject, string message)
+        {
             var text = new MimeMessage();
-            text.From.Add(new MailboxAddress("TaskManagement", "taskmngement@gmail.com"));
-            text.To.Add(new MailboxAddress("", recipientId));
+            text.From.Add(new MailboxAddress("TaskManagement", SenderEmail));
+            foreach (var recipientId in recipientIds)
+            {
+                text.To.Add(new MailboxAddress("", recipientId));
+            }
             text.Subject = subject;
             text.Body = new TextPart("plain")
             {
                 Text = message
             };
+            return text;
+        }
 
-            using var client = new MailKit.Net.Smtp.SmtpClient();
-            await client.ConnectAsync("smtp.gmail.com", 465, true); // Use ConnectAsync for async operation
-            await client.AuthenticateAsync("taskmngement@gmail.com", "pfwz ljoc mwct difx"); // Use AuthenticateAsync
-            await client.SendAsync(text); // Use SendAsync for async operation
-            await client.DisconnectAsync(true); // Use DisconnectAsync
+        private async Task SendEmailAsync(MimeMessage message)
+        {
+            try
+            {
+                await _client.SendAsync(message);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
-            Console.WriteLine("Email sent successfully.");
-
-
+        ~EmailNotificationService()
+        {
+            _client.Disconnect(true);
         }
     }
 }
