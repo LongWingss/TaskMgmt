@@ -20,8 +20,9 @@ builder.Services.AddDbContext<TaskMgmntContext>(
                 Password=Sql@2022!;");
     });
 
+builder.Services.AddScoped<IProjectTaskStatusRepository, ProjectTaskStatusRepository>();
 builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
-
+builder.Services.AddScoped<IProjectTaskStatusService, ProjectTaskStatusService>();
 builder.Services.AddScoped<IProjectTaskService, ProjectTaskService>();
 
 var app = builder.Build();

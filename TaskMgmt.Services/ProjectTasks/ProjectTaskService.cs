@@ -55,7 +55,7 @@ namespace TaskMgmt.Services.ProjectTasks
             return results;
         }
 
-        public async Task CreateTask(NewTaskDto newTask)
+        public async Task<ProjectTask> CreateTask(int projectId, NewTaskDto newTask)
         {
             var task = new ProjectTask
             {
@@ -63,10 +63,11 @@ namespace TaskMgmt.Services.ProjectTasks
                 DueDate = newTask.DueDate,
                 AssigneeId = newTask.AssigneeId,
                 CreatorId = newTask.CreatorId,
-                ProjectId = newTask.ProjectId,
+                ProjectId = projectId,
                 CurrentStatusId = newTask.CurrentStatusId
             };
             await projectTaskRepository.Add(task);
+            return task;
         }
     }
 }
