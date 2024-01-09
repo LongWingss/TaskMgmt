@@ -15,13 +15,8 @@ namespace TaskMgmt.DataAccess.Models
         public DbSet<ProjectTask> ProjectTasks { get; set; } = null!;
         public DbSet<ProjectTaskStatus> ProjectTaskStatuses { get; set; } = null!;
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public TaskMgmntContext(DbContextOptions<TaskMgmntContext> options) : base(options)
         {
-            optionsBuilder.UseSqlServer(
-                @"Server=127.0.0.1,1405;
-                Database=TaskMgmnt;
-                User Id=SA;
-                Password=Sql@2022!;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

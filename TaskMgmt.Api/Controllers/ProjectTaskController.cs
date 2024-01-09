@@ -21,10 +21,10 @@ namespace TaskMgmt.Api.Controllers
 
         // GET: api/{ProjectId}/
         [HttpGet]
-        public IActionResult GetAll(int ProjectId)
+        public async Task<IActionResult> GetAll(int ProjectId)
         {
 
-            var value = _projectTaskService.Get(ProjectId);
+            var value = await _projectTaskService.GetAll(ProjectId);
             if (value == null)
             {
                 return NotFound();
@@ -36,10 +36,10 @@ namespace TaskMgmt.Api.Controllers
 
         // GET api/<TasksController>/5
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
 
-            var values = _projectTaskService.Get(id);
+            var values = await _projectTaskService.Get(id);
             if (values == null)
             {
                 return NotFound();
@@ -51,14 +51,14 @@ namespace TaskMgmt.Api.Controllers
 
         // POST api/<TasksController>
         [HttpPost]
-        public IActionResult Post([FromBody] NewTaskDto obj)
+        public async Task<IActionResult> Post([FromBody] NewTaskDto obj)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            _projectTaskService.CreateTask(obj);
-            return CreatedAtAction(nameof(GetById), obj);
+            await _projectTaskService.CreateTask(obj);
+            return CreatedAtAction(nameof(GetById),new { id = obj.ProjectId }, obj); // TODO: FIX No route
         }
 
         // PUT api/<TasksController>/5
