@@ -19,12 +19,17 @@ namespace TaskMgmt.Services.ProjectTasks
         }
 
 
-        public async Task Add(ProjectTaskStatusDto newStatus)
+        public async Task Add(ProjectTaskStatusCreateDto newStatus)
         {
+
             var status = new ProjectTaskStatus
             {
-
+                ProjectId=newStatus.ProjectId,
+                StatusText=newStatus.StatusText,
+                StatusColor=newStatus.StatusColor
             };
+            await _projectTaskStatusRepository.Add(status);
+
         }
 
         public async Task<IEnumerable<ProjectTaskStatusDto>> GetAll(int projectId)
@@ -46,9 +51,16 @@ namespace TaskMgmt.Services.ProjectTasks
 
         }
 
-        public Task<ProjectTaskStatusDto> GetById(int id)
+        public async Task<ProjectTaskStatusDto> GetById(int id)
         {
-            throw new NotImplementedException();
+            var task=await _projectTaskStatusRepository.GetById(id);
+            var obj = new ProjectTaskStatusDto{
+                ProjectTaskStatusId = task.ProjectTaskStatusId,
+                ProjectId = task.ProjectId,
+                StatusText = task.StatusText,
+                StatusColor= task.StatusColor
+            };
+            return obj;
         }
     }
 }
