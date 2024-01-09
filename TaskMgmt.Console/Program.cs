@@ -6,13 +6,26 @@ using TaskMgmt.Console;
 
 class Program
 {
-    static string [] ? ConsoleReadInput()
+    static List<string> ? ConsoleReadInput()
     {
         string ? input = Console.ReadLine();
         if (input == null || input.Length == 0 || input == " ") 
             return null;
 
-        return input.Split(' ').ToArray();
+        //Accounting for quotes
+        List<string> output = new List<string>();
+
+        string[] args = input.Split('\'', '"').ToArray();
+        foreach(var arg in args)
+        {
+            if (arg == "" || arg == " ") continue;
+
+            arg.Split(' ').ToList().ForEach( e => {
+                if (e != "")
+                    output.Add(e);
+            });
+        }
+        return output;
     }
 
     const string COMMAND_OPTIONS = 
@@ -30,7 +43,7 @@ class Program
         while (isRunning)
         {
             Console.Write("> ");
-            string [] args = ConsoleReadInput();
+            List<string> args = ConsoleReadInput();
             if (args == null) continue;
 
             switch(args[0].ToLower())
@@ -62,7 +75,6 @@ class Program
                     Console.WriteLine("Invalid command!");
                 break;
             }
-
         }
     }
 }
