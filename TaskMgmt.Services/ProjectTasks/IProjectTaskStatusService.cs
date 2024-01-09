@@ -12,9 +12,9 @@ namespace TaskMgmt.Services.ProjectTasks
     public interface IProjectTaskStatusService
     {
 
-        public Task<IEnumerable<ProjectTaskStatusDto>> GetAll();
-        public Task<ProjectTaskStatusDto> GetById(int id);
-        public Task Add(ProjectTaskStatusDto status);
+        public Task<IEnumerable<ProjectTaskStatusDto>> GetAll(int projectId);
+        public Task<ProjectTaskStatusDto> GetById(int taskId);
+        public Task Add(ProjectTaskStatusCreateDto status);
 
 
 
