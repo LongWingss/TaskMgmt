@@ -22,7 +22,6 @@ namespace TaskMgmt.Api.Controllers
         [HttpGet]
         public IActionResult Get(int ProjectId)
         {
-
             return Ok(_projectTaskService.GetAll(ProjectId));
         }
 
@@ -30,7 +29,7 @@ namespace TaskMgmt.Api.Controllers
         [HttpGet("{id}")]
         public string Get(int id)
         {
-            return "value";
+            return Ok(_project); ;
         }
 
         // POST api/<TasksController>

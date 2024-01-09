@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TaskMgmt.Services.DTOs
 {
-    internal class ProjectTaskStatusCreateDto
+    public class ProjectTaskStatusCreateDto
     {
         
         public int ProjectId { get; set; }
