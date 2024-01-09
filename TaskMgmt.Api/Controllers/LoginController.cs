@@ -5,20 +5,45 @@ using TaskMgmt.Services;
 
 namespace TaskMgmt.Api.Controllers
 {
-    [Route("api/login")]
     [ApiController]
     public class LoginController : Controller
     {
-        public IUserRepository _userRepository;
-        public LoginController(IUserRepository userRepository)
+        private readonly IUserService _userService;
+
+        public LoginController(IUserService userService)
         {
-            _userRepository = userRepository;
+            _userService = userService;
         }
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginDto loginDto)
+
+        [Route("api/login")]
+        [HttpPost()]
+        public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
-            var authenticationResult = _userRepository
-            return View();
+            try
+            {
+                string token = await _userService.Authenticate(loginDto.Email, loginDto.Password);
+                return Ok(token);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized("Login failed");
+            }
+
+        }
+        [Route("api/signup")]
+        [HttpPost()]
+        public async Task<IActionResult> SignUP([FromBody] LoginDTO loginDto)
+        {
+            try
+            {
+                string token = await _userService.Authenticate(loginDto.Email, loginDto.Password);
+                return Ok(token);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized("Login failed");
+            }
+
         }
     }
 }
