@@ -1,4 +1,6 @@
 ﻿using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 
 namespace TaskMgmt.Console
 {
@@ -33,7 +35,13 @@ namespace TaskMgmt.Console
             string postRequest =$"{ApiUrl}/api/groups/{groupId}/projects";
             System.Console.WriteLine($"POST: {postRequest} ...");
 
-            HttpResponseMessage response = await _httpClient.PostAsJsonAsync(postRequest, proj);
+            var request = new HttpRequestMessage(HttpMethod.Post, postRequest);
+            string jsonContent = JsonSerializer.Serialize(proj);
+
+            StringContent stringContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            request.Content = stringContent;
+            var response = await _httpClient.SendAsync(request);
+
             if(response == null)
             {
                 System.Console.WriteLine("Invalid response!");
