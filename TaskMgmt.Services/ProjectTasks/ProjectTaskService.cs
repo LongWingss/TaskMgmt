@@ -15,10 +15,11 @@ namespace TaskMgmt.Services.ProjectTasks
 
         public async Task<ProjectTaskDto?> Get(int taskId)
         {
-        
             var currentTask = await projectTaskRepository.GetById(taskId);
-
-            if (currentTask == null) return new ProjectTaskDto();
+            if (currentTask == null)
+            {
+                return null;
+            }
 
             var projectTaskDTo = new ProjectTaskDto
             {
