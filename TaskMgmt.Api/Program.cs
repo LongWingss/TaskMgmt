@@ -1,6 +1,5 @@
-using AutoMapper;
+using TaskMgmt.Api.Profiles;
 using TaskMgmt.DataAccess.Models;
-using TaskMgmt.DataAccess.Profiles;
 using TaskMgmt.DataAccess.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,4 +1,4 @@
-﻿namespace TaskMgmt.DataAccess.Dtos
+﻿namespace TaskMgmt.Api.Dtos
 {
     public class ProjectDto
     {

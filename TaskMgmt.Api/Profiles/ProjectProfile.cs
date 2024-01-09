@@ -1,8 +1,8 @@
 using AutoMapper;
-using TaskMgmt.DataAccess.Dtos;
+using TaskMgmt.Api.Dtos;
 using TaskMgmt.DataAccess.Models;
 
-namespace TaskMgmt.DataAccess.Profiles
+namespace TaskMgmt.Api.Profiles
 {
     public class ProjectProfile : Profile
     {
