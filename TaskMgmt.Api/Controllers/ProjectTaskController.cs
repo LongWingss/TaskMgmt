@@ -6,7 +6,7 @@ using TaskMgmt.Services.ProjectTasks;
 
 namespace TaskMgmt.Api.Controllers
 {
-    [Route("/api/{ProjectId}/[controller]")]
+    [Route("/projects/{projectId}/tasks")]
     [ApiController]
     public class ProjectTaskController : ControllerBase
     {
@@ -18,35 +18,29 @@ namespace TaskMgmt.Api.Controllers
             _projectTaskService = projectTaskService;
         }
 
-
         // GET: api/{ProjectId}/
         [HttpGet]
         public async Task<IActionResult> GetAll(int ProjectId)
         {
 
-            var value = await _projectTaskService.GetAll(ProjectId);
-            if (value == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(value);
-
-        }
-
-        // GET api/<TasksController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-
-            var values = await _projectTaskService.Get(id);
-            if (values == null)
+            var values = await _projectTaskService.GetAll(ProjectId);
+            if (!values.Any())
             {
                 return NotFound();
             }
             return Ok(values);
+        }
 
-
+        // GET api/<TasksController>/5
+        [HttpGet("{taskId}")]
+        public async Task<IActionResult> GetById(int taskId)
+        {
+            var value = await _projectTaskService.Get(taskId);
+            if (value == null)
+            {
+                return NotFound();
+            }
+            return Ok(value);
         }
 
         // POST api/<TasksController>
@@ -60,21 +54,5 @@ namespace TaskMgmt.Api.Controllers
             await _projectTaskService.CreateTask(obj);
             return CreatedAtAction(nameof(GetById),new { id = obj.ProjectId }, obj); // TODO: FIX No route
         }
-
-        // PUT api/<TasksController>/5
-        //[HttpPut("{id}")]
-        //public IActionResult Put(int id, [FromBody] string value)
-        //{
-        //    if (!ModelState.IsValid) { return  BadRequest(ModelState); }
-
-        //    _projectTaskService.
-
-        //}
-
-        //// DELETE api/<TasksController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
     }
 }
