@@ -60,25 +60,31 @@ namespace TaskMgmt.Services
 
         public async Task<string> SignUp(string email, string enteredPassword, string name, string groupName)
         {
-            bool exists = await _groupRepository.CheckExists(groupName);
-            if (!exists)
-            {
-                throw new Exception("Group already exists");
-            }
-            exists = await _userRepository.UserExists(email);
-            if (!exists)
+            bool exists = await _userRepository.UserExists(email);
+            if (exists)
             {
                 throw new UserAlreadyExistsException("User already exists");
             }
-            int userid = await _userRepository.Add(new User
+            exists = await _groupRepository.CheckExists(groupName);
+            if (exists)
             {
-                Email = email,
-                PasswordHash = EncryptPassword(enteredPassword),
-            });
-            await _groupRepository.Add(new Group
+                throw new Exception("Group already exists");
+            }
+
+
+            int groupId = await _groupRepository.Add(new Group
             {
                 GroupName = groupName,
             });
+
+            int userId = await _userRepository.Add(new User
+            {
+                Email = email,
+                PasswordHash = EncryptPassword(enteredPassword),
+                DefaultGroupId = groupId,
+            });
+
+            await _userRepository.EnrollUserToGroup(userId, groupId, isAdmin: true);
 
             var jwtHelper = new JwtHelper();
             return jwtHelper.GenerateToken();

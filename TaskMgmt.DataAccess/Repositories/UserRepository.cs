@@ -38,5 +38,16 @@ namespace TaskMgmt.DataAccess.Repositories
         {
             return await _taskMgmntContext.Users.AnyAsync(u => u.Email == email);
         }
+
+        public async Task EnrollUserToGroup(int userId, int groupId, bool isAdmin)
+        {
+            _taskMgmntContext.UserGroups.Add(new UserGroup
+            {
+                GroupId = groupId,
+                UserId = userId,
+                IsAdmin = isAdmin,
+            });
+            await _taskMgmntContext.SaveChangesAsync();
+        }
     }
 }

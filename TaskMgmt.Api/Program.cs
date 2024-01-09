@@ -18,6 +18,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<TaskMgmntContext>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 
 builder.Services.AddAuthentication(options =>
     {
