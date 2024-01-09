@@ -51,10 +51,9 @@ namespace TaskMgmt.Services.ProjectTasks
 
         }
 
-        public async Task<ProjectTaskStatusDto?> GetById(int id)
+        public async Task<ProjectTaskStatusDto> GetById(int id)
         {
             var task=await _projectTaskStatusRepository.GetById(id);
-            if (task == null) return null;               
             var obj = new ProjectTaskStatusDto{
                 ProjectTaskStatusId = task.ProjectTaskStatusId,
                 ProjectId = task.ProjectId,

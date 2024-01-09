@@ -6,39 +6,40 @@ using TaskMgmt.Services.ProjectTasks;
 
 namespace TaskMgmt.Api.Controllers
 {
-    [Route("/projects/{projectId}/statuses")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class ProjectTaskStatusController : ControllerBase
+    public class TaskStatusesController : ControllerBase
     {
 
         private readonly IProjectTaskStatusService _projectTaskStatusService;
-        public ProjectTaskStatusController(IProjectTaskStatusService projectTaskStatusService)
+        public TaskStatusesController(IProjectTaskStatusService projectTaskStatusService)
         {
             this._projectTaskStatusService = projectTaskStatusService;
         }
 
         // GET: api/<TaskStatusesController>
         [HttpGet]
-        public async Task<IActionResult> GetAll(int projectId)
+        public IActionResult GetAll(int projectId)
         {
-            var statuses = await _projectTaskStatusService.GetAll(projectId);
-            if (!statuses.Any())
+            var Statuses = _projectTaskStatusService.GetAll(projectId);
+            if (Statuses == null)
             {
                 return NotFound();
             }
-            return Ok(statuses);
+            return Ok(Statuses);
         }
 
         // GET api/<TaskStatusesController>/5
-        [HttpGet("{statusId}")]
-        public IActionResult GetById(int statusId)
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
         {
-            var status = _projectTaskStatusService.GetById(statusId);
-            if(status == null)
+            var Status = _projectTaskStatusService.GetById(id);
+            if(Status == null)
             {
                 return NotFound();
+
             }
-            return Ok(status);
+            return Ok(Status);
         }
 
         // POST api/<TaskStatusesController>
@@ -49,8 +50,19 @@ namespace TaskMgmt.Api.Controllers
             {
                 return BadRequest(ModelState); 
             }
-            _projectTaskStatusService.Add(value);            
+
+            _projectTaskStatusService.Add(value);
+
+            
             return CreatedAtAction(nameof(Post), value);
+
+
+        }
+
+        // DELETE api/<TaskStatusesController>/5
+        [HttpDelete("{id}")]
+        public void Delete(int id)
+        {
         }
     }
 }

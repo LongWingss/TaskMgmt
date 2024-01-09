@@ -13,7 +13,10 @@ namespace TaskMgmt.Services.ProjectTasks
     {
 
         public Task<IEnumerable<ProjectTaskStatusDto>> GetAll(int projectId);
-        public Task<ProjectTaskStatusDto?> GetById(int taskId);
+        public Task<ProjectTaskStatusDto> GetById(int taskId);
         public Task Add(ProjectTaskStatusCreateDto status);
+
+
+
     }
 }
