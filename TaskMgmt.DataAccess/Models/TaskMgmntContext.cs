@@ -26,6 +26,12 @@ namespace TaskMgmt.DataAccess.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>().HasOne(e => e.DefaultGroup)
+                .WithMany()
+                .HasPrincipalKey(e => e.GroupId)
+                .HasForeignKey(e => e.DefaultGroupId)
+                .IsRequired(false);
+
             modelBuilder.Entity<UserGroup>().HasKey(e => new { e.UserId, e.GroupId });
 
             modelBuilder.Entity<Invitation>().HasOne(e => e.InvitedByUserNavigation)
