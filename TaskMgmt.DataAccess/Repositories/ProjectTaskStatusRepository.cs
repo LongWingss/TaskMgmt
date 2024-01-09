@@ -18,12 +18,12 @@ namespace TaskMgmt.DataAccess.Repositories
 
         public async Task<IEnumerable<ProjectTaskStatus>> GetAll()
         {
-            return await _dBcontext.ProjectTaskStatuses.ToListAsync();
+            return await _dBcontext.ProjectTaskStatuses.Include(e=>e.ProjectId).ToListAsync();
         }
 
         public async Task<ProjectTaskStatus> GetById(int Id)
         {
-            var status = await _dBcontext.ProjectTaskStatuses.Where(t => t.ProjectTaskStatusId == Id).SingleOrDefaultAsync();
+            var status = await _dBcontext.ProjectTaskStatuses.Where(t => t.ProjectTaskStatusId == Id).Include(e=>e.ProjectId).SingleOrDefaultAsync();
             return status;
         }
 
