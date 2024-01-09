@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
+using TaskMgmt.Api.DTO;
+using TaskMgmt.Api.DTO.User;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
 using TaskMgmt.Services;
@@ -51,13 +53,14 @@ namespace TaskMgmt.Api.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] Group group)
+        public async Task<IActionResult> Add([FromBody] GroupDTO groupDto)
         {
             try
             {
-                if (group == null)
+                if (groupDto == null)
                     return BadRequest();
 
+                var group = new Group { GroupName = groupDto.GroupName };
                 var createdGroup = await _groupService.Add(group);
                 return Created("Created", createdGroup);
             }
