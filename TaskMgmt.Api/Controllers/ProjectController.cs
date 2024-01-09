@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskMgmt.Api.Attributes;
 using TaskMgmt.Api.Dtos;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
@@ -23,7 +24,7 @@ namespace TaskMgmt.Api.Controllers
 
         // GET: api/groups/{groupId}/projects
         [HttpGet]
-        [Authorize]
+        [GroupMembershipAuthorize("groupId")]
         public async Task<ActionResult<IEnumerable<Project>>> GetProjects(int groupId)
         {
             try
@@ -41,7 +42,7 @@ namespace TaskMgmt.Api.Controllers
 
         // GET: api/groups/{groupId}/projects/{id}
         [HttpGet("{id}")]
-        [Authorize]
+        [GroupMembershipAuthorize("groupId")]
         public async Task<ActionResult<Project>> GetProject(int groupId, int id)
         {
             try
@@ -63,7 +64,7 @@ namespace TaskMgmt.Api.Controllers
 
         // POST: /groups/{groupId}/projects
         [HttpPost]
-        [Authorize]
+        [GroupMembershipAuthorize("groupId")]
         public async Task<IActionResult> Create(int groupId, [FromBody] ProjectDto projectDto)
         {
             try
