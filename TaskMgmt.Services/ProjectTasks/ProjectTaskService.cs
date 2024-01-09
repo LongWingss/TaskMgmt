@@ -3,14 +3,19 @@ using TaskMgmt.Services.DTOs;
 
 namespace TaskMgmt.Services.ProjectTasks
 {
-    public static class ProjectTaskService
+    public class ProjectTaskService : IProjectTaskService
     {
-        public static IEnumerable<ProjectTask> GetAll()
+        public IEnumerable<DataAccess.DTOs.ProjectTask> GetAll(int projectId)
         {
             throw new NotImplementedException();
         }
 
-        public static void CreateTask(NewTaskDto newTaskDto)
+        public DataAccess.DTOs.ProjectTask Get(int taskId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CreateTask(NewTask newTask)
         {
             throw new NotImplementedException();
         }

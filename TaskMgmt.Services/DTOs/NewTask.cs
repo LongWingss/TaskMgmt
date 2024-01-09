@@ -1,6 +1,6 @@
 ﻿namespace TaskMgmt.Services.DTOs
 {
-    public class NewTaskDto
+    public class NewTask
     {
     }
 }
