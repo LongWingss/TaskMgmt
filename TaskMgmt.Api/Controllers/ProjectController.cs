@@ -31,6 +31,7 @@ namespace TaskMgmt.Api.Controllers
             {
                 var projects = await _projectRepository.GetAllAsync(groupId);
                 var projectsResponse = _mapper.Map<IEnumerable<ProjectResponseDto>>(projects);
+
                 return Ok(projectsResponse);
             }
             catch (Exception ex)
@@ -52,7 +53,7 @@ namespace TaskMgmt.Api.Controllers
                     return NotFound();
                 }
                 var projectResponseDto = _mapper.Map<ProjectResponseDto>(project);
-                return Ok(project);
+                return Ok(projectResponseDto);
             }
             catch (Exception ex)
             {
@@ -82,7 +83,7 @@ namespace TaskMgmt.Api.Controllers
 
                 var responseDto = _mapper.Map<ProjectResponseDto>(project);
 
-                return CreatedAtAction(nameof(GetById), new { groupId, id = project.ProjectId }, responseDto);
+                return CreatedAtAction(nameof(GetProject), new { groupId, id = project.ProjectId }, responseDto);
             }
             catch (Exception ex)
             {

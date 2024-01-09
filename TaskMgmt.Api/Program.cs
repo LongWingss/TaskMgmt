@@ -1,4 +1,6 @@
+using AutoMapper;
 using TaskMgmt.DataAccess.Models;
+using TaskMgmt.DataAccess.Profiles;
 using TaskMgmt.DataAccess.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<TaskMgmntContext>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(typeof(ProjectProfile));
 
 
 var app = builder.Build();
