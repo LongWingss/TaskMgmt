@@ -19,7 +19,6 @@ namespace TaskMgmt.Api.Controllers
         {
             _projectRepository = projectRepository;
             _mapper = mapper;
-
         }
 
         // GET: api/groups/{groupId}/projects
@@ -69,15 +68,14 @@ namespace TaskMgmt.Api.Controllers
         {
             try
             {
-                var userId = HttpContext.Items["UserId"] as int?;
-                if (userId == null)
-                    return Unauthorized();
+                var userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+                // TODO: Might need to check if userId null or invalid
 
                 var project = _mapper.Map<Project>(projectDto);
 
                 // Set GroupId and OwnerId explicitly
                 project.GroupId = groupId;
-                project.OwnerId = userId.Value;
+                project.OwnerId = userId;
 
                 await _projectRepository.CreateAsync(project);
 
