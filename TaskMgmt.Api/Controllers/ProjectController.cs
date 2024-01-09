@@ -1,7 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskMgmt.DataAccess.Dtos;
+using TaskMgmt.Api.Dtos;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
 
