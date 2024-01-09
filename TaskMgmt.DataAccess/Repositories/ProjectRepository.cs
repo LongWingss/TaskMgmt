@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 using TaskMgmt.DataAccess.Models;
 
 namespace TaskMgmt.DataAccess.Repositories
@@ -22,23 +23,14 @@ namespace TaskMgmt.DataAccess.Repositories
             return await _dbcontext.Projects.FirstOrDefaultAsync(p => p.GroupId == groupId && p.ProjectId == id);
         }
 
-        public async Task CreateAsync(int groupId, Project project)
+        public async Task CreateAsync( Project project)
         {
-            if (project.GroupId != groupId)
-            {
-                throw new ArgumentException("Mismatched Group Id.");
-            }
             _dbcontext.Projects.Add(project);
             await _dbcontext.SaveChangesAsync();
         }
 
-        public async Task EditAsync(int groupId, int id, Project project)
+        public async Task EditAsync(Project project)
         {
-            if (id != project.ProjectId || groupId != project.GroupId)
-            {
-                throw new ArgumentException("Mismatched ID or Group ID.");
-            }
-
             _dbcontext.Entry(project).State = EntityState.Modified;
             await _dbcontext.SaveChangesAsync();
         }

@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskMgmt.DataAccess.Dtos;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
 
@@ -18,6 +20,7 @@ namespace TaskMgmt.Api.Controllers
 
         // GET: groups/{groupId}/projects
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<Project>>> GetProjects(int groupId)
         {
             try
@@ -33,6 +36,7 @@ namespace TaskMgmt.Api.Controllers
 
         // GET: /groups/{groupId}/projects/{id}
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<Project>> GetById(int groupId, int id)
         {
             try
@@ -53,12 +57,33 @@ namespace TaskMgmt.Api.Controllers
 
         // POST: /groups/{groupId}/projects
         [HttpPost]
-        public async Task<IActionResult> Create(int groupId, [FromBody] Project project)
+        [Authorize]
+        public async Task<IActionResult> Create(int groupId, [FromBody] ProjectDto projectDto)
         {
             try
             {
-                await _projectRepository.CreateAsync(groupId, project);
-                return CreatedAtAction(nameof(GetById), new { groupId, id = project.ProjectId }, project);
+                var userId = HttpContext.Items["UserId"] as int?;
+                if(userId == null) 
+                    return Unauthorized();
+
+                var project = new Project
+                {
+                    ProjectName = projectDto.ProjectName,
+                    ProjectDescription = projectDto.ProjectDescription,
+                    GroupId = groupId,
+                    OwnerId= (int)userId,
+                };
+                await _projectRepository.CreateAsync(project );
+                var responseDto = new ProjectResponseDto
+                {
+                    ProjectId = project.ProjectId,
+                    GroupId = (int)project.GroupId,
+                    ProjectDescription = projectDto.ProjectDescription,
+                    ProjectName = projectDto.ProjectName,
+                    OwnerId = project.OwnerId,
+
+                };
+                return CreatedAtAction(nameof(GetById), new { groupId, id = project.ProjectId }, responseDto);
             }
             catch (Exception ex)
             {
