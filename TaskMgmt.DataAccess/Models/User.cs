@@ -9,7 +9,9 @@ namespace TaskMgmt.DataAccess.Models
         public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
+        public int? DefaultGroupId { get; set; }
 
+        public Group DefaultGroup { get; set; } = null!;
         public ICollection<Invitation> Invitations { get; set; } = null!;
         public ICollection<Project> Projects { get; set; } = null!;
         public ICollection<UserGroup> UserGroups { get; set; } = null!;
