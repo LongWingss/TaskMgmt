@@ -13,7 +13,6 @@ namespace TaskMgmt.DataAccess.Repositories
         public Task<ProjectTaskStatus> GetById(int id);
         public Task Add(ProjectTaskStatus status);
 
-        public Task Update(ProjectTaskStatus status);
 
     }
 }
