@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
 using TaskMgmt.DataAccess.Models;
 
 namespace TaskMgmt.DataAccess.Repositories
@@ -23,7 +22,7 @@ namespace TaskMgmt.DataAccess.Repositories
             return await _dbcontext.Projects.FirstOrDefaultAsync(p => p.GroupId == groupId && p.ProjectId == id);
         }
 
-        public async Task CreateAsync( Project project)
+        public async Task CreateAsync(Project project)
         {
             _dbcontext.Projects.Add(project);
             await _dbcontext.SaveChangesAsync();

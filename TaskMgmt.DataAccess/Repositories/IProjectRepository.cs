@@ -6,8 +6,8 @@ namespace TaskMgmt.DataAccess.Repositories
     {
         Task<IEnumerable<Project>> GetAllAsync(int groupId);
         Task<Project?> GetByIdAsync(int groupId, int id);
-        Task CreateAsync( Project project);
-        Task EditAsync(  Project project);
+        Task CreateAsync(Project project);
+        Task EditAsync(Project project);
         Task DeleteAsync(int groupId, int id);
     }
 }

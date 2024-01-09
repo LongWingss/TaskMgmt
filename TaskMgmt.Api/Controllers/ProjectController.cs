@@ -63,7 +63,7 @@ namespace TaskMgmt.Api.Controllers
             try
             {
                 var userId = HttpContext.Items["UserId"] as int?;
-                if(userId == null) 
+                if (userId == null)
                     return Unauthorized();
 
                 var project = new Project
@@ -71,9 +71,9 @@ namespace TaskMgmt.Api.Controllers
                     ProjectName = projectDto.ProjectName,
                     ProjectDescription = projectDto.ProjectDescription,
                     GroupId = groupId,
-                    OwnerId= (int)userId,
+                    OwnerId = (int)userId,
                 };
-                await _projectRepository.CreateAsync(project );
+                await _projectRepository.CreateAsync(project);
                 var responseDto = new ProjectResponseDto
                 {
                     ProjectId = project.ProjectId,

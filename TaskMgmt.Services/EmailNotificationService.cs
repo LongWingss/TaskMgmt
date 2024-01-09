@@ -40,7 +40,7 @@ namespace TaskMgmt.Services
                 text.To.Add(new MailboxAddress("", recipientId));
             }
             text.Subject = subject;
-            text.Body = new TextPart("plain")
+            text.Body = new TextPart("html")
             {
                 Text = message
             };
