@@ -14,11 +14,11 @@ namespace TaskMgmt.Api.DTO
         public string Password { get; set; }
 
         [Required(ErrorMessage = "Name is required.")]
-        [StringLength(100, ErrorMessage = "Name must be less than 100 characters.", MinimumLength = 1)]
+        [StringLength(20, ErrorMessage = "Name must between 3-20 characters", MinimumLength = 3)]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "GroupName is required.")]
-        [StringLength(100, ErrorMessage = "GroupName must be less than 100 characters.", MinimumLength = 1)]
+        [StringLength(20, ErrorMessage = "GroupName must between 3-20 characters", MinimumLength = 3)]
         public string GroupName { get; set; }
     }
 }
