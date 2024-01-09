@@ -49,5 +49,11 @@ namespace TaskMgmt.DataAccess.Repositories
             });
             await _taskMgmntContext.SaveChangesAsync();
         }
+
+        public async Task<bool> IsMember(int userId, int groupId)
+        {
+            return await _taskMgmntContext.UserGroups.AnyAsync(x=>x.GroupId == groupId && x.UserId == userId);
+                           
+        }
     }
 }
