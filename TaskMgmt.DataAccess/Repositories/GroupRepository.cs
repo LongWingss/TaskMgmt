@@ -15,11 +15,11 @@ namespace TaskMgmt.DataAccess.Repositories
         {
             _context = context;
         }
-        public async Task<Group> Add(Group group)
+        public async Task<int> Add(Group group)
         {
             _context.Groups.Add(group);
             await _context.SaveChangesAsync();
-            return group;
+            return group.GroupId;
         }
         public async Task<Group> GetById(int id)
         {

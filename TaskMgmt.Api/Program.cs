@@ -1,4 +1,5 @@
 using TaskMgmt.Services;
+using TaskMgmt.Api.Middlewares;
 using TaskMgmt.DataAccess;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,6 +18,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<TaskMgmntContext>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -51,6 +53,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseMiddleware<UserIdMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
