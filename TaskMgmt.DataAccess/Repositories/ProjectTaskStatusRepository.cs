@@ -32,5 +32,13 @@ namespace TaskMgmt.DataAccess.Repositories
             _dBcontext.ProjectTaskStatuses.Add(status);
             await _dBcontext.SaveChangesAsync();
         }
+
+        public async Task Update(ProjectTaskStatus status)
+        {
+            _dBcontext?.ProjectTaskStatuses.Update(status);
+            await _dBcontext.SaveChangesAsync();
+
+        }
+                            
     }
 }
