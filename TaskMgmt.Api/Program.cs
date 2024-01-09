@@ -21,7 +21,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
-builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
+// builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
 
 
 

@@ -16,12 +16,10 @@ namespace TaskMgmt.Services
     public class GroupService : IGroupService
     {
         private readonly IGroupRepository _groupRepository;
-        private readonly IInvitationRepository _invitationRepository;
 
-        public GroupService(IGroupRepository groupRepository,IInvitationRepository invitationRepository)
+        public GroupService(IGroupRepository groupRepository)
         {
             _groupRepository = groupRepository;
-            _invitationRepository = invitationRepository;
         }
 
         public async Task<Group> GetById(int id)
@@ -56,13 +54,11 @@ namespace TaskMgmt.Services
 
         public async Task<Invitation> Enroll(Invitation invitation, string referralCode, int id)
         {
-            int groupId = await _invitationRepository.GetGroupIdFromReferralCode(referralCode);
-
-
+            var group = await _groupRepository.GetInvitationByRefCode(referralCode);
 
             var enroll = new Invitation
             {
-                GroupId = groupId,
+                GroupId = group.GroupId,
                 InvitedByUser = invitation.InvitedByUser,
                 InviteeEmail = invitation.InviteeEmail,
                 Token = referralCode,
@@ -73,11 +69,11 @@ namespace TaskMgmt.Services
             var usergrp = new UserGroup
             {
                 UserId = id,
-                GroupId = groupId,
+                GroupId = (int)group.GroupId,
                 IsAdmin = false
             };
 
-            await _invitationRepository.Enroll(invitation, referralCode, usergrp);
+            await _groupRepository.Enroll(invitation, referralCode, usergrp);
             return enroll;
         }
         public async Task<int> InviteUser(int userId, int groupId, string inviteeEmail)
