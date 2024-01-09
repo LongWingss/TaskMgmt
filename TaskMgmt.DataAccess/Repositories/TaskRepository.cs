@@ -1,33 +1,38 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TaskMgmt.DataAccess.Models;
+using TaskMgmt.DataAccess.Repositories;
 
 namespace TaskMgmt.DataAccess.Repositories
 {
-    internal class TaskRepository : ITaskRepository
+    public class TaskRepository : ITaskRepository
     {
-        private readonly TaskMgmntContext _context;
-        public TaskRepository(TaskMgmntContext context)
+        private readonly TaskMgmntContext _dBcontext;
+        public TaskRepository(TaskMgmntContext dBcontext)
         {
-            _context = context;
+            _dBcontext = dBcontext;
         }
-        public Task<ProjectTask> Add(ProjectTask task)
+        public async Task<ICollection<ProjectTask>> GetAll()
         {
-            throw new NotImplementedException();
+            return await _dBcontext.ProjectTasks.ToListAsync();
         }
-
-        public Task<ProjectTask[]> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<ProjectTask> GetById(int Id)
         {
-            return await _context.ProjectTasks.FindAsync(Id);
-            
+            var task=await _dBcontext.ProjectTasks.Where(t=>t.ProjectTaskId== Id).SingleOrDefaultAsync();
+            return task;
+
+        }
+        public async Task Add(ProjectTask task)
+        {
+            _dBcontext.ProjectTasks.Add(task);
+            await _dBcontext.SaveChangesAsync();
         }
     }
 }
+
+
+
