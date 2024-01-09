@@ -4,8 +4,10 @@ namespace TaskMgmt.Services
 {
     public interface IGroupService
     {
-        public Task<Group> GetById(int id);
-        public Task<Group[]> GetAll(int userid);
-        public Task<int> Add(Group group);
+        Task<Group> GetById(int id);
+        Task<Group[]> GetAll(int userid);
+        Task<int> Add(Group group);
+        public Task<int> InviteUser(int userId, int groupId, string inviteeEmail);
+        Task<Invitation> Enroll(Invitation invitation, string referralCode, int id);
     }
 }

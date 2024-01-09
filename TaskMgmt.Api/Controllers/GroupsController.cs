@@ -69,5 +69,19 @@ namespace TaskMgmt.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost("{groupId}/invitations")]
+        public async Task<IActionResult> InviteUser(int groupId, [FromBody] String inviteeEmail)
+        {
+            try
+            {
+                int userId = Convert.ToInt32(User.FindFirst("UserId").Value);
+                var invitationId = await _groupService.InviteUser(userId, groupId, inviteeEmail);
+                return Ok(invitationId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

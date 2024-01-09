@@ -20,5 +20,7 @@ namespace TaskMgmt.Api.DTO
         [Required(ErrorMessage = "GroupName is required.")]
         [StringLength(20, ErrorMessage = "GroupName must between 3-20 characters", MinimumLength = 3)]
         public string GroupName { get; set; }
+
+        public string? ReferralCode { get; set; }
     }
 }

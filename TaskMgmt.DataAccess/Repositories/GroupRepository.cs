@@ -36,5 +36,30 @@ namespace TaskMgmt.DataAccess.Repositories
         {
             return await _context.Groups.AnyAsync(g => g.GroupName == name);
         }
+        public int GenerateRefCode()
+        {
+            var random = new Random();
+            return random.Next(100000, 999999);
+        }
+        public async Task<int> InviteUser(int userId, int groupId, string inviteeEmail)
+        {
+            var refcode = GenerateRefCode();
+            var invitation = new Invitation
+            {
+                GroupId = groupId,
+                InvitedByUser = userId,
+                InviteeEmail = inviteeEmail,
+                Token = refcode.ToString(),
+                CreatedAt = DateTime.UtcNow
+            };
+            _context.Invitations.Add(invitation);
+            await _context.SaveChangesAsync();
+            return userId;
+        }
+        public Task<Invitation> GetInvitationByRefCode(string refCode)
+        {
+            var invitation = _context.Invitations.FirstOrDefaultAsync(x => x.Token == refCode);
+            return invitation;
+        }
     }
 }
