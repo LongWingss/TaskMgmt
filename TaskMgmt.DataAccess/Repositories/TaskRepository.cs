@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TaskMgmt.DataAccess.Models;
+using TaskMgmt.DataAccess.Repositories;
 
 namespace TaskMgmt.DataAccess.Repositories
 {
@@ -19,9 +21,11 @@ namespace TaskMgmt.DataAccess.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<ProjectTask[]> GetAll()
+
+        public async Task<ProjectTask[]> GetAll()
         {
-            throw new NotImplementedException();
+            var ProjectTasks = await _context.ProjectTasks.ToArrayAsync();
+            return ProjectTasks;
         }
 
         public async Task<ProjectTask> GetById(int Id)
@@ -31,3 +35,6 @@ namespace TaskMgmt.DataAccess.Repositories
         }
     }
 }
+
+
+
