@@ -7,4 +7,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Dtos\Group\NewFile1.txt" />
+    <None Remove="Services\ApiClient" />
+    <None Remove="Services\NewFile1.txt" />
+  </ItemGroup>
+
 </Project>

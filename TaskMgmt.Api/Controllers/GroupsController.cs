@@ -21,7 +21,7 @@ namespace TaskMgmt.Api.Controllers
             try
             {
                 var groups = _groupRepository.GetAll();
-                return Ok(groups);
+                return Ok(groups.Result);
             }
             catch (Exception ex)
             {
@@ -39,7 +39,7 @@ namespace TaskMgmt.Api.Controllers
                 {
                     return NotFound();
                 }
-                return Ok(group);
+                return Ok(group.Result);
             }
             catch (Exception ex)
             {
