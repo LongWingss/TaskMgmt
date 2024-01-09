@@ -25,9 +25,11 @@ namespace TaskMgmt.DataAccess.Repositories
         {
             return await _context.Groups.FindAsync(id);
         }
-        public async Task<Group[]> GetAll()
+        public async Task<Group[]> GetAll(int userid)
         {
-            return await _context.Groups.ToArrayAsync();
+            // return await _context.Groups.ToArrayAsync();
+            var userGroups = await _context.UserGroups.Include(ug => ug.Group).Where(ug => ug.UserId == userid).ToArrayAsync();
+            return userGroups.Select(ug => ug.Group).ToArray();
         }
 
         public async Task<bool> CheckExists(string name)

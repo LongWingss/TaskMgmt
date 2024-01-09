@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace TaskMgmt.DataAccess.Models
 {
@@ -9,8 +10,11 @@ namespace TaskMgmt.DataAccess.Models
         public string GroupName { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
 
+        [JsonIgnore]
         public ICollection<Invitation> Invitations { get; set; } = null!;
+        [JsonIgnore]
         public ICollection<Project> Projects { get; set; } = null!;
+        [JsonIgnore]
         public ICollection<UserGroup> UserGroups { get; set; } = null!;
     }
 }

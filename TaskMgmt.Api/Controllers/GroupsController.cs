@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
@@ -18,28 +19,37 @@ namespace TaskMgmt.Api.Controllers
             _groupService = groupService;
         }
         [HttpGet]
-        public IActionResult GetAll()
+        [Authorize]
+        public async Task<IActionResult> GetAll()
         {
-            
-                var groups = _groupService.GetAll();
+            if (int.TryParse(User.FindFirst("UserId").Value, out int userid))
+            {
+                var groups = await _groupService.GetAll(userid);
                 return Ok(groups);
-           
+            }
+            else
+            {
+                return BadRequest("Invalid UserId");
+            }
+
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetById(int id)
-        {
-            try
-            {
-                var group = _groupService.GetById(id);
-                return Ok(group);
-            }
-            catch (GroupNotFoundException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        // [Authorize]
+        // [HttpGet("{id}")]
+        // public async Task<IActionResult> GetById(int id)
+        // {
+        //     try
+        //     {
+        //         var group = await _groupService.GetById(id);
+        //         return Ok(group);
+        //     }
+        //     catch (GroupNotFoundException ex)
+        //     {
+        //         return BadRequest(ex.Message);
+        //     }
+        // }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] Group group)
         {
@@ -53,7 +63,7 @@ namespace TaskMgmt.Api.Controllers
             }
             catch (GroupAlreadyExistsException ex)
             {
-                return BadRequest(ex.Message);  
+                return BadRequest(ex.Message);
             }
         }
     }

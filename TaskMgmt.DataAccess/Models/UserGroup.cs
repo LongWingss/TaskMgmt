@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace TaskMgmt.DataAccess.Models
 {
@@ -9,7 +10,9 @@ namespace TaskMgmt.DataAccess.Models
         public int GroupId { get; set; }
         public bool? IsAdmin { get; set; }
 
+        [JsonIgnore]
         public Group Group { get; set; } = null!;
+        [JsonIgnore]
         public User User { get; set; } = null!;
     }
 }

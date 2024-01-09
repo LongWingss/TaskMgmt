@@ -19,9 +19,9 @@ namespace TaskMgmt.Services.Helpers
         //     _audience = audience;
         // }
 
-        public string GenerateToken()
+        public string GenerateToken(int userId)
         {
-            var claims = new[] { new Claim("userid", "some-username") };
+            var claims = new[] { new Claim("UserId", userId.ToString()) };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("asdfasdfasdfasdfasdfzxcvq2qweqweoiuoixcuzvoizxucoizuxciouzxicouzixcu"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

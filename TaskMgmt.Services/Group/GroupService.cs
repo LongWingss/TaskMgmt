@@ -23,7 +23,7 @@ namespace TaskMgmt.Services
         }
 
         public async Task<Group> GetById(int id)
-        { 
+        {
             var group = await _groupRepository.GetById(id);
             if (group == null)
             {
@@ -32,13 +32,13 @@ namespace TaskMgmt.Services
             return group;
         }
 
-        public async Task<Group[]> GetAll()
+        public async Task<Group[]> GetAll(int userid)
         {
-            var groups = await _groupRepository.GetAll();
+            var groups = await _groupRepository.GetAll(userid);
             return groups;
         }
 
-        public async Task<Group> Add(Group group)
+        public async Task<int> Add(Group group)
         {
             bool exists = await _groupRepository.CheckExists(group.GroupName);
             if (exists)
@@ -47,8 +47,8 @@ namespace TaskMgmt.Services
             }
             else
             {
-                var createdGroup = await _groupRepository.Add(group);
-                return createdGroup;
+                await _groupRepository.Add(group);
+                return group.GroupId;
             }
         }
 

@@ -48,7 +48,7 @@ namespace TaskMgmt.Services
                 if (VerifyPassword(enteredPassword, user.PasswordHash))
                 {
                     var jwtHelper = new JwtHelper();
-                    return jwtHelper.GenerateToken();
+                    return jwtHelper.GenerateToken(user.UserId);
                 }
                 else { throw new UnauthorizedAccessException("Invalid credentials"); }
             }
@@ -87,7 +87,7 @@ namespace TaskMgmt.Services
             await _userRepository.EnrollUserToGroup(userId, groupId, isAdmin: true);
 
             var jwtHelper = new JwtHelper();
-            return jwtHelper.GenerateToken();
+            return jwtHelper.GenerateToken(userId);
         }
     }
 }
