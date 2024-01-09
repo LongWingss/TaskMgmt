@@ -9,9 +9,9 @@ namespace TaskMgmt.DataAccess.Repositories
 {
     public interface ITaskRepository
     {
-        public Task<ProjectTask[]> GetAll();
+        public Task<IEnumerable<ProjectTask>> GetAll();
         public Task<ProjectTask> GetById(int Id);
-        public Task<ProjectTask> Add(ProjectTask task);
+        public Task Add(ProjectTask task);
 
 
     }
