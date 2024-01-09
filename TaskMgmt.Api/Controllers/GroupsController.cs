@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
+using TaskMgmt.Api.Attributes;
 using TaskMgmt.Api.DTO;
 using TaskMgmt.Api.DTO.User;
 using TaskMgmt.DataAccess.Models;
@@ -69,6 +70,7 @@ namespace TaskMgmt.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [GroupMembershipAuthorize("groupId")]
         [HttpPost("{groupId}/invitations")]
         public async Task<IActionResult> InviteUser(int groupId, [FromBody] String inviteeEmail)
         {

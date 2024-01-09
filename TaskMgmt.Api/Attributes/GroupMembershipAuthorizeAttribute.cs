@@ -15,7 +15,7 @@ namespace TaskMgmt.Api.Attributes
             _groupIdParameterName = groupIdParameterName;
         }
 
-        public async void OnAuthorization(AuthorizationFilterContext context)
+        public void OnAuthorization(AuthorizationFilterContext context)
         {
             if (_userService == null)
             {
@@ -32,7 +32,7 @@ namespace TaskMgmt.Api.Attributes
                 context.Result = new BadRequestObjectResult("Invalid user id");
                 return;
             }
-            bool isUserInGroup = await _userService.IsUserInGroup(userId, groupId);
+            bool isUserInGroup = _userService.IsUserInGroup(userId, groupId).GetAwaiter().GetResult();
             if (!isUserInGroup)
             {
                 context.Result = new UnauthorizedResult();
