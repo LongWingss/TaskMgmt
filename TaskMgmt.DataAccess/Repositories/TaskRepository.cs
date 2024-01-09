@@ -9,29 +9,27 @@ using TaskMgmt.DataAccess.Repositories;
 
 namespace TaskMgmt.DataAccess.Repositories
 {
-    internal class TaskRepository : ITaskRepository
+    public class TaskRepository : ITaskRepository
     {
-        private readonly TaskMgmntContext _context;
-        public TaskRepository(TaskMgmntContext context)
+        private readonly TaskMgmntContext _dBcontext;
+        public TaskRepository(TaskMgmntContext dBcontext)
         {
-            _context = context;
+            _dBcontext = dBcontext;
         }
-        public Task<ProjectTask> Add(ProjectTask task)
+        public async Task<ICollection<ProjectTask>> GetAll()
         {
-            throw new NotImplementedException();
+            return await _dBcontext.ProjectTasks.ToListAsync();
         }
-
-
-        public async Task<ProjectTask[]> GetAll()
-        {
-            var ProjectTasks = await _context.ProjectTasks.ToArrayAsync();
-            return ProjectTasks;
-        }
-
         public async Task<ProjectTask> GetById(int Id)
         {
-            return await _context.ProjectTasks.FindAsync(Id);
-            
+            var task=await _dBcontext.ProjectTasks.Where(t=>t.ProjectTaskId== Id).SingleOrDefaultAsync();
+            return task;
+
+        }
+        public async Task Add(ProjectTask task)
+        {
+            _dBcontext.ProjectTasks.Add(task);
+            await _dBcontext.SaveChangesAsync();
         }
     }
 }
