@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using TaskMgmt.Api.DTO;
 using TaskMgmt.Api.DTO.User;
@@ -82,6 +83,16 @@ namespace TaskMgmt.Api.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPost("{id}/enrollments")]
+        [Authorize]
+        public async Task<IActionResult> Enroll(Invitation invitation, string referralCode)
+        {
+            int id = int.Parse(User.FindFirstValue("userId"));
+            var enroll = await _groupService.Enroll(invitation, referralCode, id);
+
+            return Ok(enroll);
         }
     }
 }
