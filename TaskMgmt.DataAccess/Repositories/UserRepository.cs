@@ -22,15 +22,21 @@ namespace TaskMgmt.DataAccess.Repositories
             var users = await _taskMgmntContext.Users.ToListAsync();
             return users;
         }
-        public async Task Add(User user)
+        public async Task<int> Add(User user)
         {
             _taskMgmntContext.Users.Add(user);
-            _taskMgmntContext.SaveChanges();
+            await _taskMgmntContext.SaveChangesAsync();
+            return user.UserId;
         }
         public async Task<User> GetByEmail(string email)
         {
             var user = await _taskMgmntContext.Users.FirstOrDefaultAsync(user => user.Email == email);
             return user;
+        }
+
+        public async Task<bool> UserExists(string email)
+        {
+            return await _taskMgmntContext.Users.AnyAsync(u => u.Email == email);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace TaskMgmt.Api.Dtos.User
+﻿namespace TaskMgmt.Api.DTO
 {
     public class LoginDTO
     {

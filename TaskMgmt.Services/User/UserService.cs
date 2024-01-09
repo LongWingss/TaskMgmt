@@ -1,22 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using TaskMgmt.DataAccess;
 using TaskMgmt.DataAccess.Repositories;
 using TaskMgmt.Services.Helpers;
+using TaskMgmt.Services.CustomExceptions;
+using TaskMgmt.DataAccess.Models;
 
 namespace TaskMgmt.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IGroupRepository _groupRepository;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IGroupRepository groupRepository)
         {
             _userRepository = userRepository;
+            _groupRepository = groupRepository;
         }
 
         public string EncryptPassword(string password)
@@ -51,6 +56,32 @@ namespace TaskMgmt.Services
             {
                 throw new UnauthorizedAccessException("Invalid credentials");
             }
+        }
+
+        public async Task<string> SignUp(string email, string enteredPassword, string name, string groupName)
+        {
+            bool exists = await _groupRepository.CheckExists(groupName);
+            if (!exists)
+            {
+                throw new Exception("Group already exists");
+            }
+            exists = await _userRepository.UserExists(email);
+            if (!exists)
+            {
+                throw new UserAlreadyExistsException("User already exists");
+            }
+            int userid = await _userRepository.Add(new User
+            {
+                Email = email,
+                PasswordHash = EncryptPassword(enteredPassword),
+            });
+            await _groupRepository.Add(new Group
+            {
+                GroupName = groupName,
+            });
+
+            var jwtHelper = new JwtHelper();
+            return jwtHelper.GenerateToken();
         }
     }
 }

@@ -29,5 +29,10 @@ namespace TaskMgmt.DataAccess.Repositories
         {
             return await _context.Groups.ToArrayAsync();
         }
+
+        public async Task<bool> CheckExists(string name)
+        {
+            return await _context.Groups.AnyAsync(g => g.GroupName == name);
+        }
     }
 }

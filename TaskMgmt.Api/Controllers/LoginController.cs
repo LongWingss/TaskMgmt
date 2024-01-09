@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TaskMgmt.Api.Dtos.User;
+using TaskMgmt.Api.DTO;
 using TaskMgmt.DataAccess.Repositories;
 using TaskMgmt.Services;
+using TaskMgmt.Services.CustomExceptions;
 
 namespace TaskMgmt.Api.Controllers
 {
@@ -32,16 +33,20 @@ namespace TaskMgmt.Api.Controllers
         }
         [Route("api/signup")]
         [HttpPost()]
-        public async Task<IActionResult> SignUP([FromBody] LoginDTO loginDto)
+        public async Task<IActionResult> SignUp([FromBody] SignUpDTO signUpDto)
         {
             try
             {
-                string token = await _userService.Authenticate(loginDto.Email, loginDto.Password);
+                string token = await _userService.SignUp(signUpDto.Email, signUpDto.Password, signUpDto.Name, signUpDto.GroupName);
                 return Ok(token);
             }
-            catch (UnauthorizedAccessException)
+            catch (GroupAlreadyExistsException)
             {
-                return Unauthorized("Login failed");
+                return StatusCode(StatusCodes.Status409Conflict, "Group already exists");
+            }
+            catch (UserAlreadyExistsException)
+            {
+                return StatusCode(StatusCodes.Status409Conflict, "User already exists");
             }
 
         }
