@@ -80,5 +80,10 @@ namespace TaskMgmt.Services
             await _invitationRepository.Enroll(invitation, referralCode, usergrp);
             return enroll;
         }
-    }
+        public async Task<int> InviteUser(int userId, int groupId, string inviteeEmail)
+        {
+            var invitationId = await _groupRepository.InviteUser(userId, groupId, inviteeEmail);
+            return invitationId;
+        }
+        }
 }
