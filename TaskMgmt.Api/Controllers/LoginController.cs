@@ -25,9 +25,9 @@ namespace TaskMgmt.Api.Controllers
                 string token = await _userService.Authenticate(loginDto.Email, loginDto.Password);
                 return Ok(token);
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
-                return Unauthorized("Login failed");
+                return Unauthorized(ex.Message);
             }
 
         }

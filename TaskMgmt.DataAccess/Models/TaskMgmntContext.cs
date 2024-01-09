@@ -20,7 +20,7 @@ namespace TaskMgmt.DataAccess.Models
             optionsBuilder.UseSqlServer(
                 @"Server=127.0.0.1,1405;
                 Database=TaskMgmnt;
-                User Id=SA;
+                User Id=sa;
                 Password=Sql@2022!;");
         }
 
