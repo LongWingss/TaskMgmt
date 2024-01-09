@@ -17,10 +17,9 @@ namespace TaskMgmt.Api.Attributes
 
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            if (_userService == null)
-            {
-                _userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
-            }
+
+            _userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
+
             if (!int.TryParse(context.HttpContext.Request.RouteValues[_groupIdParameterName].ToString(), out int groupId))
             {
                 context.Result = new BadRequestObjectResult("Invalid group id");
