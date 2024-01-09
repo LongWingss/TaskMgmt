@@ -8,6 +8,9 @@ using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
+using TaskMgmt.Api.Profiles;
+using TaskMgmt.DataAccess.Models;
+using TaskMgmt.DataAccess.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,8 @@ builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 // builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddAutoMapper(typeof(ProjectProfile));
 
 
 
