@@ -1,0 +1,22 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TaskMgmt.DataAccess.Models;
+using TaskMgmt.Services.DTOs;
+
+namespace TaskMgmt.Services.ProjectTasks
+{
+    public interface IProjectTaskStatusService
+    {
+
+        public Task<IEnumerable<ProjectTaskStatusDto>> GetAll();
+        public Task<ProjectTaskStatusDto> GetById(int id);
+        public Task Add(ProjectTaskStatusDto status);
+
+
+
+    }
+}
