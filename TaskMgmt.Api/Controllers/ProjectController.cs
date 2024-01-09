@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskMgmt.DataAccess.Dtos;
@@ -7,18 +8,21 @@ using TaskMgmt.DataAccess.Repositories;
 namespace TaskMgmt.Api.Controllers
 {
     [ApiController]
-    [Route("groups/{groupId}/projects")]
+    [Route("api/groups/{groupId}/projects")]
     public class ProjectController : ControllerBase
     {
 
         private readonly IProjectRepository _projectRepository;
-        public ProjectController(IProjectRepository projectRepository)
+        private readonly IMapper _mapper;
+
+        public ProjectController(IProjectRepository projectRepository, IMapper mapper)
         {
             _projectRepository = projectRepository;
+            _mapper = mapper;
 
         }
 
-        // GET: groups/{groupId}/projects
+        // GET: api/groups/{groupId}/projects
         [HttpGet]
         [Authorize]
         public async Task<ActionResult<IEnumerable<Project>>> GetProjects(int groupId)
@@ -26,7 +30,8 @@ namespace TaskMgmt.Api.Controllers
             try
             {
                 var projects = await _projectRepository.GetAllAsync(groupId);
-                return Ok(projects);
+                var projectsResponse = _mapper.Map<IEnumerable<ProjectResponseDto>>(projects);
+                return Ok(projectsResponse);
             }
             catch (Exception ex)
             {
@@ -34,10 +39,10 @@ namespace TaskMgmt.Api.Controllers
             }
         }
 
-        // GET: /groups/{groupId}/projects/{id}
+        // GET: api/groups/{groupId}/projects/{id}
         [HttpGet("{id}")]
         [Authorize]
-        public async Task<ActionResult<Project>> GetById(int groupId, int id)
+        public async Task<ActionResult<Project>> GetProject(int groupId, int id)
         {
             try
             {
@@ -46,6 +51,7 @@ namespace TaskMgmt.Api.Controllers
                 {
                     return NotFound();
                 }
+                var projectResponseDto = _mapper.Map<ProjectResponseDto>(project);
                 return Ok(project);
             }
             catch (Exception ex)
@@ -66,23 +72,16 @@ namespace TaskMgmt.Api.Controllers
                 if (userId == null)
                     return Unauthorized();
 
-                var project = new Project
-                {
-                    ProjectName = projectDto.ProjectName,
-                    ProjectDescription = projectDto.ProjectDescription,
-                    GroupId = groupId,
-                    OwnerId = (int)userId,
-                };
-                await _projectRepository.CreateAsync(project);
-                var responseDto = new ProjectResponseDto
-                {
-                    ProjectId = project.ProjectId,
-                    GroupId = (int)project.GroupId,
-                    ProjectDescription = projectDto.ProjectDescription,
-                    ProjectName = projectDto.ProjectName,
-                    OwnerId = project.OwnerId,
+                var project = _mapper.Map<Project>(projectDto);
 
-                };
+                // Set GroupId and OwnerId explicitly
+                project.GroupId = groupId;
+                project.OwnerId = userId.Value;
+
+                await _projectRepository.CreateAsync(project);
+
+                var responseDto = _mapper.Map<ProjectResponseDto>(project);
+
                 return CreatedAtAction(nameof(GetById), new { groupId, id = project.ProjectId }, responseDto);
             }
             catch (Exception ex)

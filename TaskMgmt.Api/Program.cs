@@ -11,6 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<TaskMgmntContext>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 
 var app = builder.Build();
