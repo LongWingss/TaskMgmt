@@ -61,12 +61,12 @@ namespace TaskMgmt.Services
         public async Task<string> SignUp(string email, string enteredPassword, string name, string groupName)
         {
             bool exists = await _groupRepository.CheckExists(groupName);
-            if (!exists)
+            if (exists)
             {
                 throw new Exception("Group already exists");
             }
             exists = await _userRepository.UserExists(email);
-            if (!exists)
+            if (exists)
             {
                 throw new UserAlreadyExistsException("User already exists");
             }

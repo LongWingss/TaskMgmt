@@ -2,6 +2,8 @@
 using System.Text.RegularExpressions;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
+using TaskMgmt.Services;
+using TaskMgmt.Services.CustomExceptions;
 using Group = TaskMgmt.DataAccess.Models.Group;
 
 namespace TaskMgmt.Api.Controllers
@@ -10,23 +12,18 @@ namespace TaskMgmt.Api.Controllers
     [ApiController]
     public class GroupsController : Controller
     {
-        private readonly IGroupRepository _groupRepository;
-        public GroupsController(IGroupRepository groupRepository)
+        private readonly IGroupService _groupService;
+        public GroupsController(IGroupService groupService)
         {
-            _groupRepository = groupRepository;
+            _groupService = groupService;
         }
         [HttpGet]
         public IActionResult GetAll()
         {
-            try
-            {
-                var groups = _groupRepository.GetAll();
+            
+                var groups = _groupService.GetAll();
                 return Ok(groups);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+           
         }
 
         [HttpGet("{id}")]
@@ -34,14 +31,10 @@ namespace TaskMgmt.Api.Controllers
         {
             try
             {
-                var group = _groupRepository.GetById(id);
-                if (group == null)
-                {
-                    return NotFound();
-                }
+                var group = _groupService.GetById(id);
                 return Ok(group);
             }
-            catch (Exception ex)
+            catch (GroupNotFoundException ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -55,10 +48,10 @@ namespace TaskMgmt.Api.Controllers
                 if (group == null)
                     return BadRequest();
 
-                var createdGroup = await _groupRepository.Add(group);
+                var createdGroup = await _groupService.Add(group);
                 return Created("Created", createdGroup);
             }
-            catch (Exception ex)
+            catch (GroupAlreadyExistsException ex)
             {
                 return BadRequest(ex.Message);  
             }
