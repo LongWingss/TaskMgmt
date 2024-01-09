@@ -1,4 +1,5 @@
 using TaskMgmt.Services;
+using TaskMgmt.Api.Middlewares;
 using TaskMgmt.DataAccess;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -51,6 +52,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseMiddleware<UserIdMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
