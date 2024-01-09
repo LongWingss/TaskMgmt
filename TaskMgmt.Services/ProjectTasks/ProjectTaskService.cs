@@ -2,7 +2,7 @@
 using TaskMgmt.DataAccess.Repositories;
 using TaskMgmt.Services.DTOs;
 
-namespace TaskMgmt.Services.ProjectTaskStatus
+namespace TaskMgmt.Services.ProjectTasks
 {
     public class ProjectTaskService : IProjectTaskService
     {

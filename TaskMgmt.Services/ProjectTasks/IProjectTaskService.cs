@@ -1,6 +1,6 @@
 ﻿using TaskMgmt.Services.DTOs;
 
-namespace TaskMgmt.Services.ProjectTaskStatus
+namespace TaskMgmt.Services.ProjectTasks
 {
     public interface IProjectTaskService
     {
