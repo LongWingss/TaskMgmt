@@ -11,7 +11,9 @@ namespace TaskMgmt.DataAccess.Repositories
     {
         public Task<ProjectTask[]> GetAll();
         public Task<ProjectTask> GetById(int Id);
+        public Task<ProjectTask> Delete(int Id);
         public Task<ProjectTask> Add(ProjectTask task);
+
 
     }
 }
