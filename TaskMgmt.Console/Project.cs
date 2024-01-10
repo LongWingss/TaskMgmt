@@ -13,12 +13,36 @@ namespace TaskMgmt.Console
         // GET: api/groups/{groupId}/projects/{id}
         */
         public readonly string ApiUrl;
-        private readonly HttpClient _httpClient;
+        private readonly ApiClient _client;
 
-        public ConsoleProject()
+        public ConsoleProject(ApiClient client)
         {
-            ApiUrl = "https://localhost:7197";
-            _httpClient = new HttpClient();
+            _client = client;
+        }
+
+        public async void GetAllProjects(int groupId)
+        {
+            string endPoint = $"{_client.BaseAddress}/api/groups/{groupId}/projects"; 
+
+            System.Console.WriteLine($"POST: {endPoint} ...");
+
+            var response = await _client.GetAsync(endPoint);
+
+            if(response == null)
+            {
+                System.Console.WriteLine("Invalid response!");
+                return;
+            }
+
+            System.Console.WriteLine($"RESPONSE: {response}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                System.Console.WriteLine($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                return;
+            }
+
+            System.Console.WriteLine($"SUCCESS!");
         }
 
         public async void CreateNewProject(
@@ -32,15 +56,16 @@ namespace TaskMgmt.Console
                 ProjectDescription = projDescription,
             };
 
-            string postRequest =$"{ApiUrl}/api/groups/{groupId}/projects";
-            System.Console.WriteLine($"POST: {postRequest} ...");
+            string endPoint = $"{_client.BaseAddress}/api/groups/{groupId}/projects"; 
 
-            var request = new HttpRequestMessage(HttpMethod.Post, postRequest);
+            System.Console.WriteLine($"POST: {endPoint} ...");
+
+            var request = new HttpRequestMessage(HttpMethod.Post, endPoint);
             string jsonContent = JsonSerializer.Serialize(proj);
 
             StringContent stringContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
             request.Content = stringContent;
-            var response = await _httpClient.SendAsync(request);
+            var response = await _client.PostAsync(endPoint, request);
 
             if(response == null)
             {

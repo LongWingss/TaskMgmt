@@ -6,6 +6,7 @@ using TaskMgmt.Console;
 
 class Program
 {
+<<<<<<< Updated upstream
     static List<string> ? ConsoleReadInput()
     {
         string ? input = Console.ReadLine();
@@ -17,6 +18,13 @@ class Program
 
         string[] args = input.Split('\'', '"').ToArray();
         foreach(var arg in args)
+=======
+    public static void Main1()
+    {
+        Console.WriteLine("Welcome to the Task Management Console App!");
+        Menu menu = new Menu( new ApiClient("alskdjf"));
+        while (true)
+>>>>>>> Stashed changes
         {
             if (arg == "" || arg == " ") continue;
 

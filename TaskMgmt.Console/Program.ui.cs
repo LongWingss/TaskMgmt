@@ -59,6 +59,24 @@ class Program2
                 case "/login":
                     var resp = menu.SignIn();
                     if (resp.Result)
+<<<<<<< Updated upstream
+=======
+                    {
+                        Console.WriteLine("Success");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Sign-in failed. Please try again.");
+                    }
+                break;
+
+                case "/signup":
+                    menu.SignUp();
+                break;
+
+                case "/create":
+                    if (args.Count() != 4)
+>>>>>>> Stashed changes
                     {
                         Console.WriteLine("Success");
                     }
