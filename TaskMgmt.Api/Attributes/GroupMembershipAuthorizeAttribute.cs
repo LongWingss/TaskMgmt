@@ -20,21 +20,27 @@ namespace TaskMgmt.Api.Attributes
 
             _userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
 
+
             if (!int.TryParse(context.HttpContext.Request.RouteValues[_groupIdParameterName].ToString(), out int groupId))
             {
                 context.Result = new BadRequestObjectResult("Invalid group id");
                 return;
             }
-
-            if (!int.TryParse(context.HttpContext.User.FindFirst("UserId").Value, out int userId))
-            {
-                context.Result = new BadRequestObjectResult("Invalid user id");
-                return;
-            }
-            bool isUserInGroup = _userService.IsUserInGroup(userId, groupId).GetAwaiter().GetResult();
-            if (!isUserInGroup)
+               if(context.HttpContext.User.FindFirstValue("UserId") == null)
             {
                 context.Result = new UnauthorizedResult();
+            }else
+            {
+                if (!int.TryParse(context.HttpContext.User.FindFirst("UserId").Value, out int userId))
+                {
+                    context.Result = new BadRequestObjectResult("Invalid user id");
+                    return;
+                }
+                bool isUserInGroup = _userService.IsUserInGroup(userId, groupId).GetAwaiter().GetResult();
+                if (!isUserInGroup)
+                {
+                    context.Result = new UnauthorizedResult();
+                }
             }
         }
     }
