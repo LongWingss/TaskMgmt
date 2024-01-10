@@ -1,7 +1,6 @@
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using TaskMgmt.Api.Middlewares;
 using TaskMgmt.Services.ProjectTasks;
@@ -10,8 +9,8 @@ using TaskMgmt.DataAccess;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
 using Microsoft.OpenApi.Models;
+using TaskMgmt.Services.Helpers;
 using TaskMgmt.Api.Profiles;
-
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -30,6 +29,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.AddScoped<IJwtHelper,JwtHelper>();
 // builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddAutoMapper(typeof(ProjectProfile));
@@ -45,10 +45,10 @@ builder.Services.AddAuthentication(options =>
         o.TokenValidationParameters = new TokenValidationParameters
         {
             // ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidIssuer = "your-issuer",
-            ValidAudience = "your-audience",
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey
-            (Encoding.UTF8.GetBytes("asdfasdfasdfasdfasdfzxcvq2qweqweoiuoixcuzvoizxucoizuxciouzxicouzixcu")),
+            (Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"])),
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = false,
@@ -72,7 +72,7 @@ builder.Services.AddSwaggerGen(c => {
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer jhfdkj.jkdsakjdsa.jkdsajk\"",
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer xxxx.xxxxx.xxxxx\"",
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement {
         {
