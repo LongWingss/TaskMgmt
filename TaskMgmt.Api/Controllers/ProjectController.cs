@@ -24,6 +24,7 @@ namespace TaskMgmt.Api.Controllers
 
         // GET: api/groups/{groupId}/projects
         [HttpGet]
+        [Authorize]
         [GroupMembershipAuthorize("groupId")]
         public async Task<ActionResult<IEnumerable<Project>>> GetProjects(int groupId)
         {
@@ -42,6 +43,7 @@ namespace TaskMgmt.Api.Controllers
 
         // GET: api/groups/{groupId}/projects/{id}
         [HttpGet("{id}")]
+        [Authorize]
         [GroupMembershipAuthorize("groupId")]
         public async Task<ActionResult<Project>> GetProject(int groupId, int id)
         {
@@ -64,6 +66,7 @@ namespace TaskMgmt.Api.Controllers
 
         // POST: /groups/{groupId}/projects
         [HttpPost]
+        [Authorize]
         [GroupMembershipAuthorize("groupId")]
         public async Task<IActionResult> Create(int groupId, [FromBody] ProjectDto projectDto)
         {
