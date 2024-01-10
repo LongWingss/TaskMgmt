@@ -53,7 +53,8 @@ namespace TaskMgmt.Services
             else
             {
                 await _groupRepository.Add(group);
-                await _groupRepository.Enroll(new UserGroup{
+                await _groupRepository.Enroll(new UserGroup
+                {
                     GroupId = group.GroupId,
                     UserId = userId,
                 });
@@ -61,8 +62,18 @@ namespace TaskMgmt.Services
             }
         }
 
-        public async Task Enroll(int userId, int groupId, string invitation)
+        public async Task Enroll(int userId, int groupId, string referralCode)
         {
+
+            User user = await _userRepository.GetById(userId);
+
+            Invitation invitation = await _groupRepository.GetInvitationByRefCode(referralCode);
+
+            if (invitation.GroupId != groupId || invitation.InviteeEmail != user.Email)
+            {
+                throw new Exception("Invalid referral code");
+            }
+
             var enrollment = new UserGroup
             {
                 GroupId = groupId,
@@ -70,6 +81,8 @@ namespace TaskMgmt.Services
                 IsAdmin = false,
             };
             await _groupRepository.Enroll(enrollment);
+            invitation.Status = true;
+            await _groupRepository.UpdateInvitation(invitation);
         }
         public async Task<int> InviteUser(int userId, int groupId, string inviteeEmail)
         {
@@ -78,7 +91,7 @@ namespace TaskMgmt.Services
                 Invitation invitation = await _groupRepository.InviteUser(userId, groupId, inviteeEmail);
                 var group = await _groupRepository.GetById(groupId);
                 User user = await _userRepository.GetById(userId);
-                string subject = $"{user.Email} invited you to join the Group {group.GroupName}";
+                string subject = $"{user.Username} invited you to join the Group {group.GroupName}";
                 string message = $"Please use this code to join the Group: {invitation.Token}";
                 await _notificationService.NotifyAsync(inviteeEmail, subject, message);
                 return invitation.InvitationId;
