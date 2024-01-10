@@ -12,7 +12,7 @@ namespace TaskMgmt.DataAccess.Repositories
         public Task<IEnumerable<ProjectTaskStatus>> GetAll();
         public Task<ProjectTaskStatus?> GetById(int id);
         public Task Add(ProjectTaskStatus status);
-
+        public Task InitProjectStatus(int projectId);
 
     }
 }
