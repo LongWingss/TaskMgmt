@@ -38,6 +38,15 @@ public class ApiClient
         return response;
     }
 
+    public async Task<HttpResponseMessage> PostAsyncToken(string endpoint, object data , string token)
+    {
+        string jsonData = JsonSerializer.Serialize(data);
+        HttpContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        HttpResponseMessage response = await httpClient.PostAsync(endpoint, content);
+        return response;
+    }
+
     //public async Task<ApiResponse<T>> PutAsync<T>(string endpoint, object data)
     //{
     //    string jsonData = JsonSerializer.Serialize(data);
