@@ -35,18 +35,33 @@ namespace TaskMgmt.Api.Controllers
         [HttpPost()]
         public async Task<IActionResult> SignUp([FromBody] SignUpDTO signUpDto)
         {
-            try
+            if (signUpDto.ReferralCode == null)
             {
-                string token = await _userService.SignUp(signUpDto.Email, signUpDto.Password, signUpDto.Name, signUpDto.GroupName);
-                return Ok(token);
+                try
+                {
+                    string token = await _userService.SignUp(signUpDto.Email, signUpDto.Password, signUpDto.Name, signUpDto.GroupName);
+                    return Ok(token);
+                }
+                catch (GroupAlreadyExistsException ex)
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+                }
+                catch (UserAlreadyExistsException ex)
+                {
+                    return StatusCode(StatusCodes.Status409Conflict, ex.Message);
+                }
             }
-            catch (GroupAlreadyExistsException)
+            else
             {
-                return StatusCode(StatusCodes.Status409Conflict, "Group already exists");
-            }
-            catch (UserAlreadyExistsException)
-            {
-                return StatusCode(StatusCodes.Status409Conflict, "User already exists");
+                try
+                {
+                    string token = await _userService.SignUp(signUpDto.Email, signUpDto.Password, signUpDto.Name, signUpDto.GroupName);
+                    return Ok(token);
+                }
+                catch (GroupNotFoundException ex)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, ex.Message);
+                }
             }
 
         }
