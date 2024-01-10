@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using TaskMgmt.Api.Attributes;
 using TaskMgmt.DataAccess.Repositories;
 using TaskMgmt.Services.DTOs;
 using TaskMgmt.Services.ProjectTasks;
@@ -12,6 +14,7 @@ namespace TaskMgmt.Api.Controllers
     {
 
         private readonly IProjectTaskStatusService _projectTaskStatusService;
+
         public ProjectTaskStatusController(IProjectTaskStatusService projectTaskStatusService)
         {
             this._projectTaskStatusService = projectTaskStatusService;
@@ -19,6 +22,8 @@ namespace TaskMgmt.Api.Controllers
 
         // GET: api/<TaskStatusesController>
         [HttpGet]
+        [GroupMembershipAuthorize("groupId")]
+        [Authorize]
         public async Task<IActionResult> GetAll(int projectId)
         {
             var statuses = await _projectTaskStatusService.GetAll(projectId);
@@ -31,6 +36,8 @@ namespace TaskMgmt.Api.Controllers
 
         // GET api/<TaskStatusesController>/5
         [HttpGet("{statusId}")]
+        [GroupMembershipAuthorize("groupId")]
+        [Authorize]
         public IActionResult GetById(int statusId)
         {
             var status = _projectTaskStatusService.GetById(statusId);
@@ -43,14 +50,27 @@ namespace TaskMgmt.Api.Controllers
 
         // POST api/<TaskStatusesController>
         [HttpPost]
-        public IActionResult Post([FromRoute] int projectId, [FromBody] ProjectTaskStatusCreateDto value)
+        [GroupMembershipAuthorize("groupId")]
+        [Authorize]
+        public IActionResult Post([FromRoute] int groupId, [FromRoute] int projectId, [FromBody] ProjectTaskStatusCreateDto value)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState); 
             }
-            _projectTaskStatusService.Add(projectId, value);            
-            return CreatedAtAction(nameof(Post), value);
+
+            try
+            {
+                var userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+
+                _projectTaskStatusService.Add(userId, groupId, projectId, value);
+                return CreatedAtAction(nameof(Post), value);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+
         }
     }
 }
