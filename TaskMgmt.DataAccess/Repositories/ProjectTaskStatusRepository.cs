@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using TaskMgmt.DataAccess.Models;
 
 namespace TaskMgmt.DataAccess.Repositories
@@ -52,12 +52,14 @@ namespace TaskMgmt.DataAccess.Repositories
 
             foreach (var (status, color) in statusColorPairs)
             {
-                await _dBcontext.AddAsync(new ProjectTaskStatus{
+                _dBcontext.Add(new ProjectTaskStatus
+                {
                     ProjectId = projectId,
                     StatusText = status,
                     StatusColor = color,
                 });
             }
+            await _dBcontext.SaveChangesAsync();
         }
     }
 }
