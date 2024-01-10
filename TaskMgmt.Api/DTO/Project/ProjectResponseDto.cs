@@ -1,4 +1,4 @@
-﻿namespace TaskMgmt.Api.Dtos
+﻿namespace TaskMgmt.Api.DTO.Project
 {
     public class ProjectResponseDto
     {

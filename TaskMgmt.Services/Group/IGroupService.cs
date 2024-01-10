@@ -8,6 +8,6 @@ namespace TaskMgmt.Services
         Task<Group[]> GetAll(int userid);
         Task<int> Add(Group group, int userId);
         public Task<int> InviteUser(int userId, int groupId, string inviteeEmail);
-        Task Enroll(int userId, int groupId, string invitation);
+        Task Enroll(int userId, int groupId, string ReferralCode);
     }
 }
