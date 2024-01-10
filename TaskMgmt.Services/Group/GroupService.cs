@@ -52,34 +52,20 @@ namespace TaskMgmt.Services
             }
         }
 
-        public async Task<Invitation> Enroll(Invitation invitation, string referralCode, int id)
+        public async Task Enroll(int userId, int groupId, string invitation)
         {
-            var group = await _groupRepository.GetInvitationByRefCode(referralCode);
-
-            var enroll = new Invitation
+            var enrollment = new UserGroup
             {
-                GroupId = group.GroupId,
-                InvitedByUser = invitation.InvitedByUser,
-                InviteeEmail = invitation.InviteeEmail,
-                Token = referralCode,
-                CreatedAt = DateTime.Now,
-
+                GroupId = groupId,
+                UserId = userId,
+                IsAdmin = false,
             };
-
-            var usergrp = new UserGroup
-            {
-                UserId = id,
-                GroupId = (int)group.GroupId,
-                IsAdmin = false
-            };
-
-            await _groupRepository.Enroll(invitation, referralCode, usergrp);
-            return enroll;
+            await _groupRepository.Enroll(enrollment);
         }
         public async Task<int> InviteUser(int userId, int groupId, string inviteeEmail)
         {
             var invitationId = await _groupRepository.InviteUser(userId, groupId, inviteeEmail);
             return invitationId;
         }
-        }
+    }
 }
