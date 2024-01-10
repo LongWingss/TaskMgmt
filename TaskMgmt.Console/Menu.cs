@@ -6,6 +6,7 @@ using TaskMgmt.Console.Dtos.User;
 using TaskMgmt.Console.Dtos.Group;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
+using TaskMgmt.Console.Dtos;
 namespace TaskMgmt.Console
 {
     public class Menu
@@ -178,13 +179,17 @@ namespace TaskMgmt.Console
         {
             while(true)
             {
-                System.Console.WriteLine("1. Select Group (Id) \n2.Enroll to Group\n3.Create Group\n\n");
+                System.Console.WriteLine("1.Select Group (Id) \n2.Enroll to Group\n3.Create Group\n\n");
                 System.Console.Write("Choose an option: ");
                 string choice = System.Console.ReadLine();
                 switch (choice)
                 {
                     case "1":
                         //select groupID
+                        System.Console.Write("Enter Group ID");
+                        int groupID = System.Convert.ToInt32(System.Console.ReadLine());
+                        var flag = GetProjects(groupID, userToken);
+                        while (flag.Result);
                         break;
                     case "2":
                         //enroll
@@ -206,6 +211,56 @@ namespace TaskMgmt.Console
                 {
                     System.Console.Clear();
                 }
+            }
+        }
+
+        public async Task<bool> GetProjects(int groupID , string token)
+        {
+            var response = await apiClient.GetAsyncToken($"groups/{groupID}/projects", token);
+            string content = await response.Content.ReadAsStringAsync();
+            var projects = JsonSerializer.Deserialize<List<ProjectResponseDto>>(content);
+            foreach (var project in projects)
+            {
+                System.Console.WriteLine($"ProjectID: {project.projectId} ProjectName: {project.projectName}");
+            }
+            System.Console.WriteLine("\n\n");
+            var result = GroupMenu(groupID, userToken);
+            while (result.Result) ;
+            return true;
+        }
+        
+
+
+        public async Task<bool> GroupMenu(int groupID ,string token)
+        {
+            while(true)
+            {
+                System.Console.WriteLine("1.Invite Others");
+                string choice = System.Console.ReadLine();
+                switch (choice)
+                { 
+                    case "1":
+                        System.Console.Write("Enter email of the user you want to invite: ");
+                        string email = System.Console.ReadLine();
+                        var emailConsoleDTO = new EmailDTO {
+                            Email = email
+                        };
+
+                        var response = await apiClient.PostAsyncToken($"groups/{groupID}/invitations", emailConsoleDTO ,userToken);
+                        if(response.IsSuccessStatusCode)
+                        {
+                            System.Console.WriteLine("Invite Sent Successfully");
+                        }
+                        else
+                        {
+                            System.Console.WriteLine("Unsuccessfull.");
+                        }
+                        break;
+                    default:
+                        System.Console.WriteLine("Wrong option");
+                        break;
+                }
+
             }
         }
 
