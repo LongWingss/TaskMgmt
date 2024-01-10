@@ -17,11 +17,13 @@ namespace TaskMgmt.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IGroupRepository _groupRepository;
+        private readonly IJwtHelper _jwtHelper;
 
-        public UserService(IUserRepository userRepository, IGroupRepository groupRepository)
+        public UserService(IUserRepository userRepository, IGroupRepository groupRepository, IJwtHelper jwtHelper)
         {
             _userRepository = userRepository;
             _groupRepository = groupRepository;
+            _jwtHelper = jwtHelper;
         }
 
         public string EncryptPassword(string password)
@@ -47,8 +49,8 @@ namespace TaskMgmt.Services
             {
                 if (VerifyPassword(enteredPassword, user.PasswordHash))
                 {
-                    var jwtHelper = new JwtHelper();
-                    return jwtHelper.GenerateToken(user.UserId);
+                    
+                    return _jwtHelper.GenerateToken(user.UserId);
                 }
                 else { throw new UnauthorizedAccessException("Invalid credentials"); }
             }
@@ -86,8 +88,8 @@ namespace TaskMgmt.Services
 
             await _userRepository.EnrollUserToGroup(userId, groupId, isAdmin: true);
 
-            var jwtHelper = new JwtHelper();
-            return jwtHelper.GenerateToken(userId);
+            
+            return _jwtHelper.GenerateToken(userId);
         }
         public async Task<string> SignUpWithReferral(string email, string enteredPassword, string name, string referralCode, string groupName)
         {
@@ -123,8 +125,7 @@ namespace TaskMgmt.Services
             invitation.Status = true;
             await _groupRepository.UpdateInvitation(invitation);
 
-            var jwtHelper = new JwtHelper();
-            return jwtHelper.GenerateToken(userId);
+            return _jwtHelper.GenerateToken(userId);
         }
 
         public async Task<bool> IsUserInGroup(int userId, int groupId)

@@ -50,6 +50,10 @@ namespace TaskMgmt.Api.Controllers
                 {
                     return StatusCode(StatusCodes.Status409Conflict, ex.Message);
                 }
+                catch (Exception ex)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                }
             }
             else
             {
@@ -64,7 +68,7 @@ namespace TaskMgmt.Api.Controllers
                 }
                 catch (Exception ex)
                 {
-                    return StatusCode(StatusCodes.Status404NotFound, ex.Message);
+                    return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
                 }
             }
 
