@@ -93,15 +93,18 @@ namespace TaskMgmt.Services
         }
         public async Task<string> SignUpWithReferral(string email, string enteredPassword, string name, string referralCode, string groupName)
         {
+            Invitation invitation = await _groupRepository.GetInvitationByRefCode(referralCode) ?? throw new Exception("Invitation not found");
+            Group group = invitation.Group;
+
+            if(email != invitation.InviteeEmail)
+            {
+                throw new Exception("Invalid email");
+            }
             bool exists = await _userRepository.UserExists(email);
             if (exists)
             {
                 throw new UserAlreadyExistsException("User already exists");
             }
-
-            Invitation invitation = await _groupRepository.GetInvitationByRefCode(referralCode) ?? throw new Exception("Invitation not found");
-            Group group = invitation.Group;
-
             if (groupName != group.GroupName)
             {
                 throw new Exception("Invalid group name!");
