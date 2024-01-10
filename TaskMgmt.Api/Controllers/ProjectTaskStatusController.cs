@@ -6,7 +6,7 @@ using TaskMgmt.Services.ProjectTasks;
 
 namespace TaskMgmt.Api.Controllers
 {
-    [Route("/projects/{projectId}/statuses")]
+    [Route("api/groups/{groupId}/projects/{projectId}/statuses")]
     [ApiController]
     public class ProjectTaskStatusController : ControllerBase
     {
