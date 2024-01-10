@@ -11,6 +11,7 @@ using TaskMgmt.DataAccess.Repositories;
 using Microsoft.OpenApi.Models;
 using TaskMgmt.Services.Helpers;
 using TaskMgmt.Api.Profiles;
+using TaskMgmt.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -31,6 +32,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<IJwtHelper,JwtHelper>();
 // builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
+builder.Services.AddScoped<INotificationService, EmailNotificationService>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddAutoMapper(typeof(ProjectProfile));
 
@@ -59,7 +61,8 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => {
+builder.Services.AddSwaggerGen(c =>
+{
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Taskmgmt REST API",
