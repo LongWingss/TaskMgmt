@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using TaskMgmt.Console;
 
-class Program
+class Program2
 {
     static List<string> ? ConsoleReadInput()
     {
