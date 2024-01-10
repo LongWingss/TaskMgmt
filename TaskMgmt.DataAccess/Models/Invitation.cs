@@ -11,7 +11,7 @@ namespace TaskMgmt.DataAccess.Models
         public string InviteeEmail { get; set; } = null!;
         public string Token { get; set; } = null!;
         public bool Status { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public Group Group { get; set; } = null!;
         public User InvitedByUserNavigation { get; set; } = null!;
