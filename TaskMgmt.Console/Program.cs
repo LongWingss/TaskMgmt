@@ -3,10 +3,14 @@ static class Program
 {
     public static void Main()
     {
-        Console.WriteLine("Welcome to the Task Management Console App!");
+        
         Menu menu = new Menu();
         while (true)
         {
+
+            Console.Clear();
+            Console.WriteLine("Welcome to the Task Management Console App!");
+
             try
             {
                 Console.WriteLine("\n1. Sign In");
@@ -28,6 +32,16 @@ static class Program
                         else
                         {
                             Console.WriteLine("Sign-in failed. Please try again.");
+                            Console.WriteLine("Press 0 to exit.");
+                            var ans = Console.ReadLine();
+                            if (ans == "0")
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                Console.Clear();
+                            }
                         }
                         break;
                     case "2":
@@ -41,17 +55,17 @@ static class Program
                         break;
                     default:
                         Console.WriteLine("Invalid choice. Please try again.");
+                        Console.WriteLine("Press 0 to exit.");
+                        var ans2 = Console.ReadLine();
+                        if (ans2 == "0")
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            Console.Clear();
+                        }
                         break;
-                }
-                Console.WriteLine("Press 0 to exit.");
-                int ans = Convert.ToInt32(Console.ReadLine());
-                if (ans == 0)
-                {
-                    break;
-                }
-                else
-                {
-                    Console.Clear();
                 }
             }
             catch (Exception ex)
