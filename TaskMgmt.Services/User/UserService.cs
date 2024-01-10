@@ -118,7 +118,6 @@ namespace TaskMgmt.Services
             return jwtHelper.GenerateToken(userId);
         }
 
-
         public async Task<bool> IsUserInGroup(int userId, int groupId)
         {
             return await _userRepository.IsMember(userId, groupId);
