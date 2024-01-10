@@ -62,7 +62,7 @@ namespace TaskMgmt.Services
         private SmtpClient GetSmtpClient()
         {
             var client = new SmtpClient();
-            client.Connect(_emailConfig.Host, _emailConfig.Port, _emailConfig.UseSsl);
+            client.Connect(_emailConfig.SmtpServer, _emailConfig.SmtpPort, _emailConfig.UseSsl);
             client.Authenticate(_emailConfig.SenderEmail, _emailConfig.SenderPassword);
             return client;
         }
