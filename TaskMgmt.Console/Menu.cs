@@ -199,7 +199,7 @@ namespace TaskMgmt.Console
                         System.Console.WriteLine($"GroupID: {group.groupId} GroupName: {group.groupName} CreatedAt: {group.createdAt}\n");
                     }
                     System.Console.WriteLine("\n\n");
-                    HomeMenu(userToken);
+                    var repsonseTask = HomeMenu(userToken);
                 }
             }
             catch(Exception ex)
@@ -208,7 +208,7 @@ namespace TaskMgmt.Console
             }
 
         }
-        public void HomeMenu(string userToken)
+        public async Task<bool> HomeMenu(string userToken)
         {
             while(true)
             {
@@ -222,10 +222,15 @@ namespace TaskMgmt.Console
                         System.Console.Write("Enter Group ID");
                         int groupID = System.Convert.ToInt32(System.Console.ReadLine());
                         var flag = GetProjects(groupID, userToken);
-                        //while (flag.Result);
+                        while (flag.Result) ;
                         break;
                     case "2":
                         //enroll
+                        System.Console.WriteLine("Enroll into group");
+                        System.Console.WriteLine("Enter referral code: ");
+                        var referral=Convert.ToInt32(System.Console.ReadLine());
+                        Enroll(referral);
+
                         break;
                     case "3":
                         //create
@@ -249,7 +254,62 @@ namespace TaskMgmt.Console
                     System.Console.Clear();
                 }
             }
+            return true;
         }
+
+        public async Task<bool> GetProjects(int groupID, string token)
+        {
+            var response = await apiClient.GetAsyncToken($"groups/{groupID}/projects", token);
+            string content = await response.Content.ReadAsStringAsync();
+            var projects = JsonSerializer.Deserialize<List<ProjectResponseDto>>(content);
+            foreach (var project in projects)
+            {
+                System.Console.WriteLine($"ProjectID: {project.projectId} ProjectName: {project.projectName}");
+            }
+            System.Console.WriteLine("\n\n");
+            var result = GroupMenu(groupID, userToken);
+            while (result.Result) ;
+            return true;
+        }
+
+
+
+        public async Task<bool> GroupMenu(int groupID, string token)
+        {
+            while (true)
+            {
+                System.Console.WriteLine("1.Invite Others");
+                System.Console.WriteLine("Enter your choice");
+                string choice = System.Console.ReadLine();
+                switch (choice)
+                {
+                    case "1":
+                        System.Console.Write("Enter email of the user you want to invite: ");
+                        string email = System.Console.ReadLine();
+                        var emailConsoleDTO = new EmailDTO
+                        {
+                            Email = email
+                        };
+
+                        var response = await apiClient.PostAsyncToken($"groups/{groupID}/invitations", emailConsoleDTO, userToken);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            System.Console.WriteLine("Invite Sent Successfully");
+                            return true;
+                        }
+                        else
+                        {
+                            System.Console.WriteLine("Unsuccessfull.");
+                        }
+                        break;
+                    default:
+                        System.Console.WriteLine("Wrong option");
+                        break;
+                }
+
+            }
+        }
+
 
         public async Task CreateGroup(string Name,string Token)
         {
@@ -286,6 +346,28 @@ namespace TaskMgmt.Console
         public bool IsStrongPassword(string password)
         {
             return password.Length > 8;
+        }
+        public async Task Enroll(int referral)
+        {
+            try
+            {
+                var response = await apiClient.PostAsync("enrollments", referral);
+                if (response.IsSuccessStatusCode)
+                {
+                   // userToken = await response.Content.ReadAsStringAsync();
+                    System.Console.WriteLine("Successfully Enrolled");
+                 
+                }
+                else
+                {
+                    System.Console.WriteLine(" Enrollment Failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
+
         }
     }
 }
