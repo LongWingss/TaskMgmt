@@ -78,6 +78,7 @@ namespace TaskMgmt.Services
 
             int userId = await _userRepository.Add(new User
             {
+                Username = name,
                 Email = email,
                 PasswordHash = EncryptPassword(enteredPassword),
                 DefaultGroupId = groupId,
@@ -88,7 +89,7 @@ namespace TaskMgmt.Services
             var jwtHelper = new JwtHelper();
             return jwtHelper.GenerateToken(userId);
         }
-        public async Task<string> SignUpWithReferral(string email, string enteredPassword, string name, string referralCode)
+        public async Task<string> SignUpWithReferral(string email, string enteredPassword, string name, string referralCode, string groupName)
         {
             bool exists = await _userRepository.UserExists(email);
             if (exists)
@@ -97,6 +98,13 @@ namespace TaskMgmt.Services
             }
 
             Invitation invitation = await _groupRepository.GetInvitationByRefCode(referralCode) ?? throw new Exception("Invitation not found");
+            Group group = await _groupRepository.GetById((int)invitation.GroupId);
+
+            if (groupName != group.GroupName)
+            {
+                throw new Exception("Invalid group name!");
+            }
+
 
             if (invitation.Status)
             {
@@ -105,6 +113,7 @@ namespace TaskMgmt.Services
 
             int userId = await _userRepository.Add(new User
             {
+                Username = name,
                 Email = email,
                 PasswordHash = EncryptPassword(enteredPassword),
                 DefaultGroupId = invitation.GroupId,
