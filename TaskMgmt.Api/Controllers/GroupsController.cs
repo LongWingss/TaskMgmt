@@ -106,7 +106,7 @@ namespace TaskMgmt.Api.Controllers
         {
             try
             {
-                int userId = int.Parse(User.FindFirstValue("userId"));
+                int userId = int.Parse(User.FindFirstValue("UserId"));
                 await _groupService.Enroll(userId, invitation.GroupName, invitation.ReferralCode);
                 return Ok();
             }
