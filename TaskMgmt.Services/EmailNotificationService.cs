@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+using TaskMgmt.Services.CustomExceptions;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
@@ -34,9 +36,13 @@ namespace TaskMgmt.Services
         {
             var text = new MimeMessage();
             text.From.Add(new MailboxAddress(_emailConfig.SenderName, _emailConfig.SenderEmail));
+            var emailValidator = new EmailAddressAttribute();
             foreach (var recipientId in recipientIds)
             {
-                // TODO: validate email
+                if (!emailValidator.IsValid(recipientId))
+                {
+                    throw new InvalidEmailException("Provided email is not valid" + recipientId);
+                }
                 text.To.Add(new MailboxAddress("", recipientId));
             }
             text.Subject = subject;

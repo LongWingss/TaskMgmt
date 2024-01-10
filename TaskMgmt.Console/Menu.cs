@@ -7,17 +7,18 @@ using TaskMgmt.Console.Dtos.Group;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
 using TaskMgmt.Console.Dtos;
+using TaskMgmt.Console.Services;
+
 namespace TaskMgmt.Console
 {
     public class Menu
     {
-        private readonly string ApiUrl = "https://localhost:7197/api/";
         private string userToken;
         private readonly ApiClient apiClient;
 
         public Menu()
         {
-            apiClient = new ApiClient(ApiUrl);
+            apiClient = new ApiClient(ApiConstants.ApiUrl);
         }
 
         //
@@ -61,7 +62,7 @@ namespace TaskMgmt.Console
             };
             try
             {
-                var response = await apiClient.PostAsync("login", loginDtoConsole);
+                var response = await apiClient.PostAsync(ApiConstants.Login, loginDtoConsole);
                 if(response.IsSuccessStatusCode)
                 {
                     string content = await response.Content.ReadAsStringAsync();
@@ -118,7 +119,7 @@ namespace TaskMgmt.Console
             };
             try
             {
-                var response = await apiClient.PostAsync("signup", signUpDtoConsole);
+                var response = await apiClient.PostAsync(ApiConstants.Signup, signUpDtoConsole);
                 if(response.IsSuccessStatusCode)
                 {
                     userToken = await response.Content.ReadAsStringAsync();
@@ -154,7 +155,7 @@ namespace TaskMgmt.Console
             System.Console.WriteLine("\t\t\t\t\t\tHOME DASHBOARD");
             try
             {
-                var responseTask =  apiClient.GetAsyncToken("groups", userToken);
+                var responseTask =  apiClient.GetAsyncToken(ApiConstants.Groups, userToken);
                 var response = responseTask.Result;
                 if(response.IsSuccessStatusCode)
                 {
