@@ -39,7 +39,7 @@ namespace TaskMgmt.Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
@@ -62,7 +62,7 @@ namespace TaskMgmt.Api.Controllers
             catch (Exception ex)
             {
                 // Log the exception
-                return StatusCode(500, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
@@ -92,7 +92,7 @@ namespace TaskMgmt.Api.Controllers
             catch (Exception ex)
             {
                 // Log the exception
-                return BadRequest(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
     }
