@@ -55,10 +55,14 @@ namespace TaskMgmt.Api.Controllers
             {
                 try
                 {
-                    string token = await _userService.SignUp(signUpDto.Email, signUpDto.Password, signUpDto.Name, signUpDto.GroupName);
+                    string token = await _userService.SignUpWithReferral(signUpDto.Email, signUpDto.Password, signUpDto.Name, signUpDto.ReferralCode, signUpDto.GroupName);
                     return Ok(token);
                 }
                 catch (GroupNotFoundException ex)
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, ex.Message);
+                }
+                catch (Exception ex)
                 {
                     return StatusCode(StatusCodes.Status404NotFound, ex.Message);
                 }

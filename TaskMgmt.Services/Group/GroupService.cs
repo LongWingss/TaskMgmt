@@ -10,16 +10,21 @@ using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
 using TaskMgmt.Services.CustomExceptions;
 using TaskMgmt.Services.Helpers;
+using TaskMgmt.Services.Interfaces;
 
 namespace TaskMgmt.Services
 {
     public class GroupService : IGroupService
     {
         private readonly IGroupRepository _groupRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly INotificationService _notificationService;
 
-        public GroupService(IGroupRepository groupRepository)
+        public GroupService(IGroupRepository groupRepository, INotificationService notificationService, IUserRepository userRepository)
         {
             _groupRepository = groupRepository;
+            _notificationService = notificationService;
+            _userRepository = userRepository;
         }
 
         public async Task<Group> GetById(int id)
@@ -38,7 +43,7 @@ namespace TaskMgmt.Services
             return groups;
         }
 
-        public async Task<int> Add(Group group)
+        public async Task<int> Add(Group group, int userId)
         {
             bool exists = await _groupRepository.CheckExists(group.GroupName);
             if (exists)
@@ -48,6 +53,10 @@ namespace TaskMgmt.Services
             else
             {
                 await _groupRepository.Add(group);
+                await _groupRepository.Enroll(new UserGroup{
+                    GroupId = group.GroupId,
+                    UserId = userId,
+                });
                 return group.GroupId;
             }
         }
@@ -64,8 +73,20 @@ namespace TaskMgmt.Services
         }
         public async Task<int> InviteUser(int userId, int groupId, string inviteeEmail)
         {
-            var invitationId = await _groupRepository.InviteUser(userId, groupId, inviteeEmail);
-            return invitationId;
+            try
+            {
+                Invitation invitation = await _groupRepository.InviteUser(userId, groupId, inviteeEmail);
+                var group = await _groupRepository.GetById(groupId);
+                User user = await _userRepository.GetById(userId);
+                string subject = $"{user.Email} invited you to join the Group {group.GroupName}";
+                string message = $"Please use this code to join the Group: {invitation.Token}";
+                await _notificationService.NotifyAsync(inviteeEmail, subject, message);
+                return invitation.InvitationId;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }
