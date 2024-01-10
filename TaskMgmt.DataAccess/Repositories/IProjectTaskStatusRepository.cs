@@ -10,7 +10,7 @@ namespace TaskMgmt.DataAccess.Repositories
     public interface IProjectTaskStatusRepository
     {
         public Task<IEnumerable<ProjectTaskStatus>> GetAll();
-        public Task<ProjectTaskStatus> GetById(int id);
+        public Task<ProjectTaskStatus?> GetById(int id);
         public Task Add(ProjectTaskStatus status);
 
 

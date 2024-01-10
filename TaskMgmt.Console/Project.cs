@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using TaskMgmt.Console.Dtos;
 
 namespace TaskMgmt.Console
 {
@@ -26,7 +27,7 @@ namespace TaskMgmt.Console
             string projDescription,
             int groupId)
         {
-            Dtos.ProjectDto proj = new Dtos.ProjectDto
+            ProjectDto proj = new Dtos.ProjectDto
             {
                 ProjectName = projName,
                 ProjectDescription = projDescription,

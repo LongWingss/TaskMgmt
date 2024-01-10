@@ -20,6 +20,7 @@ namespace TaskMgmt.DataAccess.Repositories
         public async Task<ICollection<ProjectTask>> GetAll()
         {
             return await _dBcontext.ProjectTasks
+                            .Include(e => e.Project)
                             .Include(e => e.Assignee)
                             .Include(e => e.Creator)
                             .Include(e => e.CurrentStatus)
@@ -38,7 +39,7 @@ namespace TaskMgmt.DataAccess.Repositories
 
         public async Task Add(ProjectTask task)
         {
-            _dBcontext.ProjectTasks.Add(task);
+            await _dBcontext.ProjectTasks.AddAsync(task);
             await _dBcontext.SaveChangesAsync();
         }
     }

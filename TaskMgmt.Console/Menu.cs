@@ -6,6 +6,7 @@ using TaskMgmt.Console.Dtos.User;
 using TaskMgmt.Console.Dtos.Group;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
+using TaskMgmt.Console.Dtos;
 namespace TaskMgmt.Console
 {
     public class Menu
@@ -18,18 +19,6 @@ namespace TaskMgmt.Console
         {
             apiClient = new ApiClient(ApiUrl);
         }
-
-        //
-
-        //public async void SignIn()
-        //{
-        //    var result = await apiClient.GetAsync<List<GroupDTO>>("groups");
-        //    foreach (var i in result)
-        //    {
-        //        System.Console.WriteLine($"GroupName: {i.GroupName}\n");
-        //    }
-        //}
-        //Function called when Option Signup is choosen.
         public async Task<bool> SignIn()
         {
             System.Console.Write("Enter Email: ");
@@ -134,7 +123,7 @@ namespace TaskMgmt.Console
                 System.Console.WriteLine(ex.Message);
             }
         }
-        public void SignUpReferral()
+        public async void SignUpReferral()
         {
             System.Console.Write("Enter Name: ");
             string name = System.Console.ReadLine();
@@ -142,9 +131,53 @@ namespace TaskMgmt.Console
             string email = System.Console.ReadLine();
             System.Console.Write("Enter Password");
             string password = System.Console.ReadLine();
+            System.Console.Write("Enter Groupname");
+            string groupName = System.Console.ReadLine();
             System.Console.Write("Enter Referral: ");
             string referral = System.Console.ReadLine();
             //call signureferral api
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                System.Console.WriteLine("Please provide both email and password.");
+                return;
+            }
+            if (!IsValidEmail(email))
+            {
+                System.Console.WriteLine("Invalid email format. Please enter a valid email address.");
+                return;
+            }
+
+            if (!IsStrongPassword(password))
+            {
+                System.Console.WriteLine("Weak password. Please use a stronger password.");
+                return;
+            }
+            var signUpReferralDtoConsole = new SignUpReferralDTO
+            {
+                Email = email,
+                Name = name,
+                Password = password,
+                GroupName = groupName,
+                ReferralCode = referral
+            };
+            try
+            {
+                var response = await apiClient.PostAsync("signup", signUpReferralDtoConsole);
+                if (response.IsSuccessStatusCode)
+                {
+                    userToken = await response.Content.ReadAsStringAsync();
+                    System.Console.WriteLine("Welcome.");
+                    Home(userToken);
+                }
+                else
+                {
+                    System.Console.WriteLine("SignUp Failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
         }
         //function called when user successfully signup or login
         public async void Home(string userToken)
@@ -165,7 +198,7 @@ namespace TaskMgmt.Console
                         System.Console.WriteLine($"GroupID: {group.groupId} GroupName: {group.groupName} CreatedAt: {group.createdAt}\n");
                     }
                     System.Console.WriteLine("\n\n");
-                    HomeMenu(userToken);
+                    var repsonseTask = HomeMenu(userToken);
                 }
             }
             catch(Exception ex)
@@ -174,17 +207,21 @@ namespace TaskMgmt.Console
             }
 
         }
-        public void HomeMenu(string userToken)
+        public async Task<bool> HomeMenu(string userToken)
         {
             while(true)
             {
-                System.Console.WriteLine("1. Select Group (Id) \n2.Enroll to Group\n3.Create Group\n\n");
+                System.Console.WriteLine("1.Select Group (Id) \n2.Enroll to Group\n3.Create Group\n\n");
                 System.Console.Write("Choose an option: ");
                 string choice = System.Console.ReadLine();
                 switch (choice)
                 {
                     case "1":
                         //select groupID
+                        System.Console.Write("Enter Group ID");
+                        int groupID = System.Convert.ToInt32(System.Console.ReadLine());
+                        var flag = GetProjects(groupID, userToken);
+                        while (flag.Result) ;
                         break;
                     case "2":
                         //enroll
@@ -196,6 +233,10 @@ namespace TaskMgmt.Console
                         break;
                     case "3":
                         //create
+                        System.Console.Write("Enter Group Name : ");
+                        var GroupName = System.Console.ReadLine();
+                        CreateGroup(GroupName, userToken);
+                        
                         break;
                     default:
                         System.Console.WriteLine("Invalid option");
@@ -212,6 +253,87 @@ namespace TaskMgmt.Console
                     System.Console.Clear();
                 }
             }
+            return true;
+        }
+
+        public async Task<bool> GetProjects(int groupID, string token)
+        {
+            var response = await apiClient.GetAsyncToken($"groups/{groupID}/projects", token);
+            string content = await response.Content.ReadAsStringAsync();
+            var projects = JsonSerializer.Deserialize<List<ProjectResponseDto>>(content);
+            foreach (var project in projects)
+            {
+                System.Console.WriteLine($"ProjectID: {project.projectId} ProjectName: {project.projectName}");
+            }
+            System.Console.WriteLine("\n\n");
+            var result = GroupMenu(groupID, userToken);
+            while (result.Result) ;
+            return true;
+        }
+
+
+
+        public async Task<bool> GroupMenu(int groupID, string token)
+        {
+            while (true)
+            {
+                System.Console.WriteLine("1.Invite Others");
+                System.Console.WriteLine("Enter your choice");
+                string choice = System.Console.ReadLine();
+                switch (choice)
+                {
+                    case "1":
+                        System.Console.Write("Enter email of the user you want to invite: ");
+                        string email = System.Console.ReadLine();
+                        var emailConsoleDTO = new EmailDTO
+                        {
+                            Email = email
+                        };
+
+                        var response = await apiClient.PostAsyncToken($"groups/{groupID}/invitations", emailConsoleDTO, userToken);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            System.Console.WriteLine("Invite Sent Successfully");
+                            return true;
+                        }
+                        else
+                        {
+                            System.Console.WriteLine("Unsuccessfull.");
+                        }
+                        break;
+                    default:
+                        System.Console.WriteLine("Wrong option");
+                        break;
+                }
+
+            }
+        }
+
+
+        public async Task CreateGroup(string Name,string Token)
+        {
+            GroupRequestDTO GroupRequestDTO = new GroupRequestDTO
+            {
+                GroupName = Name
+            };
+            try
+            {
+                var response = await apiClient.PostAsyncToken("groups", GroupRequestDTO, Token);
+                if (response.IsSuccessStatusCode)
+                {
+                    System.Console.WriteLine("Group created successfully\n");
+                    HomeMenu(Token);
+                }
+                else
+                {
+                    System.Console.WriteLine("Group Creation Failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
+
         }
 
         //Function for checking validitiy of email

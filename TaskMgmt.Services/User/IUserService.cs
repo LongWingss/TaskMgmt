@@ -1,3 +1,5 @@
+using TaskMgmt.DataAccess.Models;
+
 namespace TaskMgmt.Services
 {
     public interface IUserService
@@ -9,5 +11,6 @@ namespace TaskMgmt.Services
         public Task<string> SignUpWithReferral(string email, string enteredPassword, string name, string referralCode, string groupName);
 
         public Task<bool> IsUserInGroup(int userId, int groupId);
+        public Task<User> GetUserById(int userId);
     }
 }

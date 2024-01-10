@@ -62,21 +62,20 @@ namespace TaskMgmt.Services
             }
         }
 
-        public async Task Enroll(int userId, int groupId, string referralCode)
+        public async Task Enroll(int userId, string groupName, string referralCode)
         {
-
             User user = await _userRepository.GetById(userId);
 
-            Invitation invitation = await _groupRepository.GetInvitationByRefCode(referralCode);
+            var invitation = await _groupRepository.GetInvitationByRefCode(referralCode);
 
-            if (invitation.GroupId != groupId || invitation.InviteeEmail != user.Email)
+            if (invitation.Group.GroupName != groupName || invitation.InviteeEmail != user.Email)
             {
                 throw new Exception("Invalid referral code");
             }
 
             var enrollment = new UserGroup
             {
-                GroupId = groupId,
+                GroupId = (int)invitation.GroupId,
                 UserId = userId,
                 IsAdmin = false,
             };

@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TaskMgmt.Api.Attributes;
+using TaskMgmt.Services.CustomExceptions;
 using TaskMgmt.Services.DTOs;
 using TaskMgmt.Services.ProjectTasks;
 
@@ -6,7 +8,7 @@ using TaskMgmt.Services.ProjectTasks;
 
 namespace TaskMgmt.Api.Controllers
 {
-    [Route("/projects/{projectId}/tasks")]
+    [Route("api/groups/{groupId}/projects/{projectId}/tasks")]
     [ApiController]
     public class ProjectTaskController : ControllerBase
     {
@@ -20,19 +22,16 @@ namespace TaskMgmt.Api.Controllers
 
         // GET: api/{ProjectId}/
         [HttpGet]
-        public async Task<IActionResult> GetAll(int projectId)
+        [GroupMembershipAuthorize("groupId")]
+        public async Task<IActionResult> GetAll(int groupId, int projectId)
         {
-
-            var values = await _projectTaskService.GetAll(projectId);
-            if (!values.Any())
-            {
-                return NotFound();
-            }
+            var values = await _projectTaskService.GetAll(groupId, projectId);
             return Ok(values);
         }
 
         // GET api/<TasksController>/5
         [HttpGet("{taskId}")]
+        [GroupMembershipAuthorize("groupId")]
         public async Task<IActionResult> GetById(int taskId)
         {
             var value = await _projectTaskService.Get(taskId);
@@ -45,14 +44,38 @@ namespace TaskMgmt.Api.Controllers
 
         // POST api/<TasksController>
         [HttpPost]
-        public async Task<IActionResult> CreateTask(int projectId, [FromBody] NewTaskDto obj)
+        [GroupMembershipAuthorize("groupId")]
+        public async Task<IActionResult> CreateTask(int groupId, int projectId, [FromBody] NewTaskDto obj)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                ProjectTaskDto newTask;
+                try
+                {
+                    newTask = await _projectTaskService.CreateTask(userId, groupId, projectId, obj);
+                }
+                catch (AssigneeNotFoundException e)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, e.Message);
+                }
+                catch (ProjectNotFoundException e)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, e.Message);
+                }
+
+                return CreatedAtAction(nameof(GetById), new { projectId, groupId, taskId = newTask.TaskId}, newTask);
             }
-            var newTask = await _projectTaskService.CreateTask(projectId, obj);
-            return CreatedAtAction(nameof(GetById), new { id = newTask.ProjectTaskId }, newTask); // TODO: FIX No route
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

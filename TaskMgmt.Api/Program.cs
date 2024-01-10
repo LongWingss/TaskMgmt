@@ -2,15 +2,20 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using TaskMgmt.Services.ProjectTasks;
-using TaskMgmt.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using TaskMgmt.Api.Profiles;
 using TaskMgmt.DataAccess;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
 using Microsoft.OpenApi.Models;
 using TaskMgmt.Services.Helpers;
 using TaskMgmt.Api.Profiles;
+using TaskMgmt.Services;
+using TaskMgmt.Services.ConfigurationClass;
 using TaskMgmt.Services.Interfaces;
+using TaskMgmt.Services.ProjectTasks;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -31,31 +36,33 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<IJwtHelper,JwtHelper>();
 // builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
+builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration"));
 builder.Services.AddScoped<INotificationService, EmailNotificationService>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddAutoMapper(typeof(ProjectProfile));
 
 
-builder.Services.AddAuthentication(options =>
+
+builder.Services.AddAuthentication(authenticationOptions =>
+{
+    authenticationOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    authenticationOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    authenticationOptions.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(configureOptions =>
     {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    }).AddJwtBearer(o =>
-    {
-        o.TokenValidationParameters = new TokenValidationParameters
+        configureOptions.TokenValidationParameters = new TokenValidationParameters
         {
-            // ValidIssuer = builder.Configuration["Jwt:Issuer"],
+
             ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey
-            (Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"])),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"])),
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = false,
             ValidateIssuerSigningKey = true
         };
     });
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddHealthChecks();
@@ -74,6 +81,7 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
+
         Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer xxxx.xxxxx.xxxxx\"",
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement {
