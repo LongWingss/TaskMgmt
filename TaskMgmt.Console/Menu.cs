@@ -189,7 +189,7 @@ namespace TaskMgmt.Console
                         System.Console.Write("Enter Group ID");
                         int groupID = System.Convert.ToInt32(System.Console.ReadLine());
                         var flag = GetProjects(groupID, userToken);
-                        while (flag.Result);
+                        //while (flag.Result);
                         break;
                     case "2":
                         //enroll
@@ -198,6 +198,7 @@ namespace TaskMgmt.Console
                         //create
                         System.Console.Write("Enter Group Name : ");
                         var GroupName = System.Console.ReadLine();
+                        CreateGroup(GroupName, userToken);
                         
                         break;
                     default:
@@ -217,7 +218,7 @@ namespace TaskMgmt.Console
             }
         }
 
-        public async Task CreateGroup(string Name)
+        public async Task CreateGroup(string Name,string Token)
         {
             GroupRequestDTO GroupRequestDTO = new GroupRequestDTO
             {
@@ -225,12 +226,11 @@ namespace TaskMgmt.Console
             };
             try
             {
-                var response = await apiClient.PostAsync("groups", GroupRequestDTO);
+                var response = await apiClient.PostAsyncToken("groups", GroupRequestDTO, Token);
                 if (response.IsSuccessStatusCode)
                 {
-                    userToken = await response.Content.ReadAsStringAsync();
-                    System.Console.WriteLine("Welcome.");
-                    Home(userToken);
+                    System.Console.WriteLine("Group created successfully\n");
+                    HomeMenu(Token);
                 }
                 else
                 {
