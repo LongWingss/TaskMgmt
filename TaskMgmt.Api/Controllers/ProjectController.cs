@@ -14,12 +14,14 @@ namespace TaskMgmt.Api.Controllers
     {
 
         private readonly IProjectRepository _projectRepository;
+        private readonly IProjectTaskStatusRepository _projectTaskStatusRepository;
         private readonly IMapper _mapper;
 
-        public ProjectController(IProjectRepository projectRepository, IMapper mapper)
+        public ProjectController(IProjectRepository projectRepository, IMapper mapper, IProjectTaskStatusRepository projectTaskStatusRepository)
         {
             _projectRepository = projectRepository;
             _mapper = mapper;
+            _projectTaskStatusRepository = projectTaskStatusRepository;
         }
 
         // GET: api/groups/{groupId}/projects
@@ -37,7 +39,7 @@ namespace TaskMgmt.Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
@@ -60,7 +62,7 @@ namespace TaskMgmt.Api.Controllers
             catch (Exception ex)
             {
                 // Log the exception
-                return StatusCode(500, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
@@ -82,7 +84,7 @@ namespace TaskMgmt.Api.Controllers
                 project.OwnerId = userId;
 
                 await _projectRepository.CreateAsync(project);
-
+                await _projectTaskStatusRepository.InitProjectStatus(project.ProjectId);
                 var responseDto = _mapper.Map<ProjectResponseDto>(project);
 
                 return CreatedAtAction(nameof(GetProject), new { groupId, id = project.ProjectId }, responseDto);
@@ -90,7 +92,7 @@ namespace TaskMgmt.Api.Controllers
             catch (Exception ex)
             {
                 // Log the exception
-                return BadRequest(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
     }

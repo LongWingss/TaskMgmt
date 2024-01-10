@@ -3,25 +3,26 @@ using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
 using TaskMgmt.Services.DTOs;
 using TaskMgmt.Services.CustomExceptions;
+using TaskMgmt.Services.Interfaces;
 
 namespace TaskMgmt.Services.ProjectTasks
 {
     public class ProjectTaskService : IProjectTaskService
     {
+        private readonly INotificationService _notificationService;
         private readonly IUserRepository _userRepository;
-        private readonly IGroupRepository _groupRepository;
         private readonly IProjectTaskRepository _projectTaskRepository;
         private readonly IProjectRepository _projectRepository;
 
         public ProjectTaskService(
+            INotificationService notificationService,
             IProjectTaskRepository projectTaskRepo,
             IUserRepository userRepo,
-            IGroupRepository groupRepo,
             IProjectRepository projectRepo)
         {
+            _notificationService = notificationService;
             _projectTaskRepository = projectTaskRepo;
             _userRepository = userRepo;
-            _groupRepository = groupRepo;
             _projectRepository = projectRepo;
         }
 
@@ -80,7 +81,7 @@ namespace TaskMgmt.Services.ProjectTasks
             var assignee = await _userRepository.GetByEmail(newTask.AssigneeMail);
             if (assignee is null)
             {
-                throw new AssigneeNotFoundException("Assignee mail is not within group");
+                throw new AssigneeNotFoundException("Assignee not found");
             }
 
             var task = new ProjectTask
@@ -94,6 +95,7 @@ namespace TaskMgmt.Services.ProjectTasks
                 CurrentStatusId = newTask.CurrentStatusId
             };
             await _projectTaskRepository.Add(task);
+            await _notificationService.NotifyAsync(task.Assignee.Email, "New Task Assigned", task.Description);
             var created = await _projectTaskRepository.GetById(task.ProjectTaskId);
 
             return new ProjectTaskDto
@@ -103,7 +105,7 @@ namespace TaskMgmt.Services.ProjectTasks
                 DueDate = task.DueDate.ToShortDateString(),
                 Assignee = task.Assignee.Email,
                 CreatedBy = task.Creator.Email,
-                CurrentStatus = created.CurrentStatus.StatusText,
+                CurrentStatus = created?.CurrentStatus?.StatusText ?? "Unable to retrieve status",
             };
         }
     }

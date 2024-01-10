@@ -49,7 +49,7 @@ namespace TaskMgmt.Services
             {
                 if (VerifyPassword(enteredPassword, user.PasswordHash))
                 {
-                    
+
                     return _jwtHelper.GenerateToken(user.UserId);
                 }
                 else { throw new UnauthorizedAccessException("Invalid credentials"); }
@@ -88,7 +88,7 @@ namespace TaskMgmt.Services
 
             await _userRepository.EnrollUserToGroup(userId, groupId, isAdmin: true);
 
-            
+
             return _jwtHelper.GenerateToken(userId);
         }
         public async Task<string> SignUpWithReferral(string email, string enteredPassword, string name, string referralCode, string groupName)
@@ -100,13 +100,12 @@ namespace TaskMgmt.Services
             }
 
             Invitation invitation = await _groupRepository.GetInvitationByRefCode(referralCode) ?? throw new Exception("Invitation not found");
-            Group group = await _groupRepository.GetById((int)invitation.GroupId);
+            Group group = invitation.Group;
 
             if (groupName != group.GroupName)
             {
                 throw new Exception("Invalid group name!");
             }
-
 
             if (invitation.Status)
             {
@@ -131,6 +130,11 @@ namespace TaskMgmt.Services
         public async Task<bool> IsUserInGroup(int userId, int groupId)
         {
             return await _userRepository.IsMember(userId, groupId);
+        }
+
+        public async Task<User> GetUserById(int userId)
+        {
+            return await _userRepository.GetById(userId);
         }
     }
 }

@@ -19,17 +19,16 @@ namespace TaskMgmt.Services.ProjectTasks
         }
 
 
-        public async Task Add(ProjectTaskStatusCreateDto newStatus)
+        public async Task Add(int projectId, ProjectTaskStatusCreateDto newStatus)
         {
 
             var status = new ProjectTaskStatus
             {
-                ProjectId=newStatus.ProjectId,
-                StatusText=newStatus.StatusText,
-                StatusColor=newStatus.StatusColor
+                ProjectId = projectId,
+                StatusText = newStatus.StatusText,
+                StatusColor = newStatus.StatusColor
             };
             await _projectTaskStatusRepository.Add(status);
-
         }
 
         public async Task<IEnumerable<ProjectTaskStatusDto>> GetAll(int projectId)

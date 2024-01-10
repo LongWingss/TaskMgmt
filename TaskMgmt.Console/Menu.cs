@@ -7,30 +7,19 @@ using TaskMgmt.Console.Dtos.Group;
 using System.Text.RegularExpressions;
 using System.ComponentModel;
 using TaskMgmt.Console.Dtos;
+using TaskMgmt.Console.Services;
+
 namespace TaskMgmt.Console
 {
     public class Menu
     {
-        private readonly string ApiUrl = "https://localhost:7197/api/";
         private string userToken;
         private readonly ApiClient apiClient;
 
         public Menu()
         {
-            apiClient = new ApiClient(ApiUrl);
+            apiClient = new ApiClient(ApiConstants.ApiUrl);
         }
-
-        //
-
-        //public async void SignIn()
-        //{
-        //    var result = await apiClient.GetAsync<List<GroupDTO>>("groups");
-        //    foreach (var i in result)
-        //    {
-        //        System.Console.WriteLine($"GroupName: {i.GroupName}\n");
-        //    }
-        //}
-        //Function called when Option Signup is choosen.
         public async Task<bool> SignIn()
         {
             System.Console.Write("Enter Email: ");
@@ -61,7 +50,7 @@ namespace TaskMgmt.Console
             };
             try
             {
-                var response = await apiClient.PostAsync("login", loginDtoConsole);
+                var response = await apiClient.PostAsync(ApiConstants.Login, loginDtoConsole);
                 if(response.IsSuccessStatusCode)
                 {
                     string content = await response.Content.ReadAsStringAsync();
@@ -118,7 +107,7 @@ namespace TaskMgmt.Console
             };
             try
             {
-                var response = await apiClient.PostAsync("signup", signUpDtoConsole);
+                var response = await apiClient.PostAsync(ApiConstants.Signup, signUpDtoConsole);
                 if(response.IsSuccessStatusCode)
                 {
                     userToken = await response.Content.ReadAsStringAsync();
@@ -135,7 +124,7 @@ namespace TaskMgmt.Console
                 System.Console.WriteLine(ex.Message);
             }
         }
-        public void SignUpReferral()
+        public async void SignUpReferral()
         {
             System.Console.Write("Enter Name: ");
             string name = System.Console.ReadLine();
@@ -143,9 +132,53 @@ namespace TaskMgmt.Console
             string email = System.Console.ReadLine();
             System.Console.Write("Enter Password");
             string password = System.Console.ReadLine();
+            System.Console.Write("Enter Groupname");
+            string groupName = System.Console.ReadLine();
             System.Console.Write("Enter Referral: ");
             string referral = System.Console.ReadLine();
             //call signureferral api
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                System.Console.WriteLine("Please provide both email and password.");
+                return;
+            }
+            if (!IsValidEmail(email))
+            {
+                System.Console.WriteLine("Invalid email format. Please enter a valid email address.");
+                return;
+            }
+
+            if (!IsStrongPassword(password))
+            {
+                System.Console.WriteLine("Weak password. Please use a stronger password.");
+                return;
+            }
+            var signUpReferralDtoConsole = new SignUpReferralDTO
+            {
+                Email = email,
+                Name = name,
+                Password = password,
+                GroupName = groupName,
+                ReferralCode = referral
+            };
+            try
+            {
+                var response = await apiClient.PostAsync("signup", signUpReferralDtoConsole);
+                if (response.IsSuccessStatusCode)
+                {
+                    userToken = await response.Content.ReadAsStringAsync();
+                    System.Console.WriteLine("Welcome.");
+                    Home(userToken);
+                }
+                else
+                {
+                    System.Console.WriteLine("SignUp Failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
         }
         //function called when user successfully signup or login
         public async void Home(string userToken)
@@ -154,7 +187,7 @@ namespace TaskMgmt.Console
             System.Console.WriteLine("\t\t\t\t\t\tHOME DASHBOARD");
             try
             {
-                var responseTask =  apiClient.GetAsyncToken("groups", userToken);
+                var responseTask =  apiClient.GetAsyncToken(ApiConstants.Groups, userToken);
                 var response = responseTask.Result;
                 if(response.IsSuccessStatusCode)
                 {
@@ -166,7 +199,7 @@ namespace TaskMgmt.Console
                         System.Console.WriteLine($"GroupID: {group.groupId} GroupName: {group.groupName} CreatedAt: {group.createdAt}\n");
                     }
                     System.Console.WriteLine("\n\n");
-                    HomeMenu(userToken);
+                    var repsonseTask = HomeMenu(userToken);
                 }
             }
             catch(Exception ex)
@@ -175,7 +208,7 @@ namespace TaskMgmt.Console
             }
 
         }
-        public void HomeMenu(string userToken)
+        public async Task<bool> HomeMenu(string userToken)
         {
             while(true)
             {
@@ -189,16 +222,25 @@ namespace TaskMgmt.Console
                         System.Console.Write("Enter Group ID");
                         int groupID = System.Convert.ToInt32(System.Console.ReadLine());
                         var flag = GetProjects(groupID, userToken);
-                        while (flag.Result);
+                        while (flag.Result) ;
                         break;
                     case "2":
                         //enroll
+                        System.Console.WriteLine("Enroll into group");
+                        System.Console.WriteLine("Enter referral code: ");
+                        var referral=Convert.ToInt32(System.Console.ReadLine());
+                        Enroll(referral);
+
                         break;
                     case "3":
                         //create
+                        System.Console.Write("Enter Group Name : ");
+                        var GroupName = System.Console.ReadLine();
+                        CreateGroup(GroupName, userToken);
+                        
                         break;
                     case "4":
-                        return;
+                        return false;
                     default:
                         System.Console.WriteLine("Invalid option");
                         break;
@@ -208,7 +250,7 @@ namespace TaskMgmt.Console
                 var ans = System.Console.ReadLine();
                 if(ans == "0")
                 {
-                    return;
+                    return false;
                 }
                 else
                 {
@@ -216,9 +258,11 @@ namespace TaskMgmt.Console
                 }
             }
             Home(userToken);
+            return true;
+
         }
 
-        public async Task<bool> GetProjects(int groupID , string token)
+        public async Task<bool> GetProjects(int groupID, string token)
         {
             var response = await apiClient.GetAsyncToken($"groups/{groupID}/projects", token);
             string content = await response.Content.ReadAsStringAsync();
@@ -232,28 +276,31 @@ namespace TaskMgmt.Console
             while (result.Result) ;
             return true;
         }
-        
 
 
-        public async Task<bool> GroupMenu(int groupID ,string token)
+
+        public async Task<bool> GroupMenu(int groupID, string token)
         {
-            while(true)
+            while (true)
             {
                 System.Console.WriteLine("1.Invite Others");
+                System.Console.WriteLine("Enter your choice");
                 string choice = System.Console.ReadLine();
                 switch (choice)
-                { 
+                {
                     case "1":
                         System.Console.Write("Enter email of the user you want to invite: ");
                         string email = System.Console.ReadLine();
-                        var emailConsoleDTO = new EmailDTO {
+                        var emailConsoleDTO = new EmailDTO
+                        {
                             Email = email
                         };
 
-                        var response = await apiClient.PostAsyncToken($"groups/{groupID}/invitations", emailConsoleDTO ,userToken);
-                        if(response.IsSuccessStatusCode)
+                        var response = await apiClient.PostAsyncToken($"groups/{groupID}/invitations", emailConsoleDTO, userToken);
+                        if (response.IsSuccessStatusCode)
                         {
                             System.Console.WriteLine("Invite Sent Successfully");
+                            return true;
                         }
                         else
                         {
@@ -268,6 +315,33 @@ namespace TaskMgmt.Console
             }
         }
 
+
+        public async Task CreateGroup(string Name,string Token)
+        {
+            GroupRequestDTO GroupRequestDTO = new GroupRequestDTO
+            {
+                GroupName = Name
+            };
+            try
+            {
+                var response = await apiClient.PostAsyncToken("groups", GroupRequestDTO, Token);
+                if (response.IsSuccessStatusCode)
+                {
+                    System.Console.WriteLine("Group created successfully\n");
+                    HomeMenu(Token);
+                }
+                else
+                {
+                    System.Console.WriteLine("Group Creation Failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
+
+        }
+
         //Function for checking validitiy of email
         public bool IsValidEmail(string email)
         {
@@ -277,6 +351,28 @@ namespace TaskMgmt.Console
         public bool IsStrongPassword(string password)
         {
             return password.Length > 8;
+        }
+        public async Task Enroll(int referral)
+        {
+            try
+            {
+                var response = await apiClient.PostAsync("enrollments", referral);
+                if (response.IsSuccessStatusCode)
+                {
+                   // userToken = await response.Content.ReadAsStringAsync();
+                    System.Console.WriteLine("Successfully Enrolled");
+                 
+                }
+                else
+                {
+                    System.Console.WriteLine(" Enrollment Failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
+
         }
     }
 }
