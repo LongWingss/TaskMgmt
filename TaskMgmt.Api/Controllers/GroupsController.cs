@@ -73,12 +73,12 @@ namespace TaskMgmt.Api.Controllers
         }
         [GroupMembershipAuthorize("groupId")]
         [HttpPost("{groupId}/invitations")]
-        public async Task<IActionResult> InviteUser(int groupId, [FromBody] String inviteeEmail)
+        public async Task<IActionResult> InviteUser(int groupId, [FromBody] EmailDTO email)
         {
             try
             {
                 int userId = Convert.ToInt32(User.FindFirst("UserId").Value);
-                var invitationId = await _groupService.InviteUser(userId, groupId, inviteeEmail);
+                var invitationId = await _groupService.InviteUser(userId, groupId, email.Email);
                 return Ok(invitationId);
             }
             catch (Exception ex)
@@ -89,12 +89,19 @@ namespace TaskMgmt.Api.Controllers
 
         [HttpPost("{id}/enrollments")]
         [Authorize]
-        public async Task<IActionResult> Enroll(Invitation invitation, string referralCode)
+        public async Task<IActionResult> Enroll([FromBody] InvitationDTO invitation, int id)
         {
-            int id = int.Parse(User.FindFirstValue("userId"));
-            var enroll = await _groupService.Enroll(invitation, referralCode, id);
-
-            return Ok(enroll);
+            try
+            {
+                int userId = int.Parse(User.FindFirstValue("userId"));
+                int groupId = id;
+                await _groupService.Enroll(userId, groupId, invitation.ReferralCode);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

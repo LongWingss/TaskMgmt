@@ -68,9 +68,8 @@ namespace TaskMgmt.Services
             exists = await _groupRepository.CheckExists(groupName);
             if (exists)
             {
-                throw new Exception("Group already exists");
+                throw new GroupAlreadyExistsException("Group already exists");
             }
-
 
             int groupId = await _groupRepository.Add(new Group
             {
@@ -89,6 +88,36 @@ namespace TaskMgmt.Services
             var jwtHelper = new JwtHelper();
             return jwtHelper.GenerateToken(userId);
         }
+        public async Task<string> SignUpWithReferral(string email, string enteredPassword, string name, string referralCode)
+        {
+            bool exists = await _userRepository.UserExists(email);
+            if (exists)
+            {
+                throw new UserAlreadyExistsException("User already exists");
+            }
+
+            Invitation invitation = await _groupRepository.GetInvitationByRefCode(referralCode) ?? throw new Exception("Invitation not found");
+
+            if (invitation.Status)
+            {
+                throw new Exception("User already enrolled!");
+            }
+
+            int userId = await _userRepository.Add(new User
+            {
+                Email = email,
+                PasswordHash = EncryptPassword(enteredPassword),
+                DefaultGroupId = invitation.GroupId,
+            });
+
+            await _userRepository.EnrollUserToGroup(userId, (int)invitation.GroupId, isAdmin: false);
+            invitation.Status = true;
+            await _groupRepository.UpdateInvitation(invitation);
+
+            var jwtHelper = new JwtHelper();
+            return jwtHelper.GenerateToken(userId);
+        }
+
 
         public async Task<bool> IsUserInGroup(int userId, int groupId)
         {

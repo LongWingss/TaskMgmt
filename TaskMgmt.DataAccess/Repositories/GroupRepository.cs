@@ -64,13 +64,15 @@ namespace TaskMgmt.DataAccess.Repositories
             return invitation;
         }
 
-        public async Task Enroll(Invitation invitation, string referralCode, UserGroup usergrp)
+        public async Task Enroll(UserGroup usergrp)
         {
-
-            _context.Invitations.Add(invitation);
             _context.UserGroups.Add(usergrp);
             await _context.SaveChangesAsync();
-
+        }
+        public async Task UpdateInvitation(Invitation invitation)
+        {
+            _context.Invitations.Update(invitation);
+            await _context.SaveChangesAsync();
         }
 
         //public async Task<int> GetGroupIdFromReferralCode(string referralCode)

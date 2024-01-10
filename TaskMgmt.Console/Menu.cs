@@ -4,7 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using TaskMgmt.Console.Dtos.User;
 using TaskMgmt.Console.Dtos.Group;
-
+using System.Text.RegularExpressions;
+using System.ComponentModel;
 namespace TaskMgmt.Console
 {
     public class Menu
@@ -33,7 +34,7 @@ namespace TaskMgmt.Console
         {
             System.Console.Write("Enter Email: ");
             string email = System.Console.ReadLine();
-            System.Console.Write("Enter Password");
+            System.Console.Write("Enter Password: ");
             string password = System.Console.ReadLine();
             //call signin rest api
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
@@ -59,7 +60,7 @@ namespace TaskMgmt.Console
             };
             try
             {
-                var response = await apiClient.PostAsync<LoginDTO>("login", loginDtoConsole);
+                var response = await apiClient.PostAsync("login", loginDtoConsole);
                 if(response.IsSuccessStatusCode)
                 {
                     string content = await response.Content.ReadAsStringAsync();
@@ -70,7 +71,7 @@ namespace TaskMgmt.Console
                     System.Console.WriteLine("Login Failed");
                     return false;
                 }
-                Home();
+                Home(userToken);
             }
             catch (Exception ex)
             {
@@ -114,8 +115,24 @@ namespace TaskMgmt.Console
                 Password = password,
                 GroupName = groupName
             };
-            var response = await apiClient.PostAsync<SignUpDTO>("signup", signUpDtoConsole);
-            System.Console.WriteLine(response.ToString());
+            try
+            {
+                var response = await apiClient.PostAsync("signup", signUpDtoConsole);
+                if(response.IsSuccessStatusCode)
+                {
+                    userToken = await response.Content.ReadAsStringAsync();
+                    System.Console.WriteLine("Welcome.");
+                    Home(userToken);
+                }
+                else
+                {
+                    System.Console.WriteLine("SignUp Failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
         }
         public void SignUpReferral()
         {
@@ -130,10 +147,66 @@ namespace TaskMgmt.Console
             //call signureferral api
         }
         //function called when user successfully signup or login
-        public void Home()
+        public async void Home(string userToken)
         {
             System.Console.Clear();
+            System.Console.WriteLine("\t\t\t\t\t\tHOME DASHBOARD");
+            try
+            {
+                var responseTask =  apiClient.GetAsyncToken("groups", userToken);
+                var response = responseTask.Result;
+                if(response.IsSuccessStatusCode)
+                {
+                    System.Console.WriteLine("\t\t\tGroup Details");
+                    string content = await response.Content.ReadAsStringAsync();
+                    var groups = JsonSerializer.Deserialize<List<GroupDTO>>(content);
+                    foreach(var group in groups)
+                    {
+                        System.Console.WriteLine($"GroupID: {group.groupId} GroupName: {group.groupName} CreatedAt: {group.createdAt}\n");
+                    }
+                    System.Console.WriteLine("\n\n");
+                    HomeMenu(userToken);
+                }
+            }
+            catch(Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
 
+        }
+        public void HomeMenu(string userToken)
+        {
+            while(true)
+            {
+                System.Console.WriteLine("1. Select Group (Id) \n2.Enroll to Group\n3.Create Group\n\n");
+                System.Console.Write("Choose an option: ");
+                string choice = System.Console.ReadLine();
+                switch (choice)
+                {
+                    case "1":
+                        //select groupID
+                        break;
+                    case "2":
+                        //enroll
+                        break;
+                    case "3":
+                        //create
+                        break;
+                    default:
+                        System.Console.WriteLine("Invalid option");
+                        break;
+                }
+                System.Console.WriteLine("Press 0 to exit");
+                int ans = Convert.ToInt32(System.Console.ReadLine());
+                if(ans == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    System.Console.Clear();
+                }
+            }
         }
 
         //Function for checking validitiy of email
