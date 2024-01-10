@@ -63,8 +63,10 @@ namespace TaskMgmt.Api.Controllers
                     return BadRequest();
 
                 var group = new Group { GroupName = groupDto.GroupName };
-                var createdGroup = await _groupService.Add(group);
+                var userId = Convert.ToInt32(User.FindFirst("UserId").Value);
+                var createdGroup = await _groupService.Add(group, userId);
                 return Created("Created", createdGroup);
+
             }
             catch (GroupAlreadyExistsException ex)
             {

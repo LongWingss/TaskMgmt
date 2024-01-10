@@ -43,7 +43,7 @@ namespace TaskMgmt.Services
             return groups;
         }
 
-        public async Task<int> Add(Group group)
+        public async Task<int> Add(Group group, int userId)
         {
             bool exists = await _groupRepository.CheckExists(group.GroupName);
             if (exists)
@@ -53,6 +53,10 @@ namespace TaskMgmt.Services
             else
             {
                 await _groupRepository.Add(group);
+                await _groupRepository.Enroll(new UserGroup{
+                    GroupId = group.GroupId,
+                    UserId = userId,
+                });
                 return group.GroupId;
             }
         }
