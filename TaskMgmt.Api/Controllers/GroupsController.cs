@@ -18,7 +18,7 @@ namespace TaskMgmt.Api.Controllers
     public class GroupsController : Controller
     {
         private readonly IGroupService _groupService;
-        public GroupsController(IGroupService groupService)
+        public GroupsController(IGroupService groupService, IUserService userService)
         {
             _groupService = groupService;
         }
@@ -100,15 +100,14 @@ namespace TaskMgmt.Api.Controllers
             }
         }
 
-        [HttpPost("{id}/enrollments")]
+        [HttpPost("enrollments")]
         [Authorize]
-        public async Task<IActionResult> Enroll([FromBody] InvitationDTO invitation, int id)
+        public async Task<IActionResult> Enroll([FromBody] InvitationDTO invitation)
         {
             try
             {
                 int userId = int.Parse(User.FindFirstValue("userId"));
-                int groupId = id;
-                await _groupService.Enroll(userId, groupId, invitation.ReferralCode);
+                await _groupService.Enroll(userId, invitation.GroupName, invitation.ReferralCode);
                 return Ok();
             }
             catch (Exception ex)
