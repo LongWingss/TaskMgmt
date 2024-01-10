@@ -179,7 +179,7 @@ namespace TaskMgmt.Console
         {
             while(true)
             {
-                System.Console.WriteLine("1.Select Group (Id) \n2.Enroll to Group\n3.Create Group\n\n");
+                System.Console.WriteLine("1.Select Group (Id) \n2.Enroll to Group\n3.Create Group\n4.LogOut\n");
                 System.Console.Write("Choose an option: ");
                 string choice = System.Console.ReadLine();
                 switch (choice)
@@ -197,21 +197,25 @@ namespace TaskMgmt.Console
                     case "3":
                         //create
                         break;
+                    case "4":
+                        return;
                     default:
                         System.Console.WriteLine("Invalid option");
                         break;
                 }
+                
                 System.Console.WriteLine("Press 0 to exit");
-                int ans = Convert.ToInt32(System.Console.ReadLine());
-                if(ans == 0)
+                var ans = System.Console.ReadLine();
+                if(ans == "0")
                 {
-                    break;
+                    return;
                 }
                 else
                 {
-                    System.Console.Clear();
+                    break;
                 }
             }
+            Home(userToken);
         }
 
         public async Task<bool> GetProjects(int groupID , string token)
