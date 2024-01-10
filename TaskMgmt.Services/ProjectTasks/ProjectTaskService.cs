@@ -9,9 +9,8 @@ namespace TaskMgmt.Services.ProjectTasks
 {
     public class ProjectTaskService : IProjectTaskService
     {
-        INotificationService _notificationService;
+        private readonly INotificationService _notificationService;
         private readonly IUserRepository _userRepository;
-        private readonly IGroupRepository _groupRepository;
         private readonly IProjectTaskRepository _projectTaskRepository;
         private readonly IProjectRepository _projectRepository;
 
@@ -19,13 +18,11 @@ namespace TaskMgmt.Services.ProjectTasks
             INotificationService notificationService,
             IProjectTaskRepository projectTaskRepo,
             IUserRepository userRepo,
-            IGroupRepository groupRepo,
             IProjectRepository projectRepo)
         {
             _notificationService = notificationService;
             _projectTaskRepository = projectTaskRepo;
             _userRepository = userRepo;
-            _groupRepository = groupRepo;
             _projectRepository = projectRepo;
         }
 
