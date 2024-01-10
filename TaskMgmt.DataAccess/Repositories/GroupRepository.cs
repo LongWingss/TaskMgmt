@@ -56,9 +56,9 @@ namespace TaskMgmt.DataAccess.Repositories
             await _context.SaveChangesAsync();
             return invitation;
         }
-        public Task<Invitation> GetInvitationByRefCode(string refCode)
+        public async Task<Invitation> GetInvitationByRefCode(string refCode)
         {
-            var invitation = _context.Invitations.FirstOrDefaultAsync(x => x.Token == refCode);
+            var invitation = await _context.Invitations.Include(x => x.Group).Where(x => x.Token == refCode).FirstOrDefaultAsync();
             return invitation;
         }
 
