@@ -1,26 +1,31 @@
-using TaskMgmt.Services;
-using TaskMgmt.Api.Middlewares;
-using TaskMgmt.DataAccess;
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using TaskMgmt.Api.Middlewares;
+using TaskMgmt.Services.ProjectTasks;
+using TaskMgmt.Services;
+using TaskMgmt.DataAccess;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
 using Microsoft.OpenApi.Models;
-using Microsoft.EntityFrameworkCore;
 using TaskMgmt.Api.Profiles;
-using TaskMgmt.DataAccess.Models;
-using TaskMgmt.DataAccess.Repositories;
+
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<TaskMgmntContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TaskMgmntDb")));
+builder.Services.AddScoped<IProjectTaskStatusRepository, ProjectTaskStatusRepository>();
+builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
+builder.Services.AddScoped<IProjectTaskStatusService, ProjectTaskStatusService>();
+builder.Services.AddScoped<IProjectTaskService, ProjectTaskService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -28,7 +33,6 @@ builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 // builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddAutoMapper(typeof(ProjectProfile));
-
 
 
 builder.Services.AddAuthentication(options =>
@@ -82,6 +86,8 @@ builder.Services.AddSwaggerGen(c => {
         }
     });
 });
+
+
 
 var app = builder.Build();
 

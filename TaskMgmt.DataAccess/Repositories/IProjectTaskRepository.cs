@@ -7,12 +7,10 @@ using TaskMgmt.DataAccess.Models;
 
 namespace TaskMgmt.DataAccess.Repositories
 {
-    public interface ITaskRepository
+    public interface IProjectTaskRepository
     {
         public Task<ICollection<ProjectTask>> GetAll();
-        public Task<ProjectTask> GetById(int Id);
+        public Task<ProjectTask?> GetById(int Id);
         public Task Add(ProjectTask task);
-
-
     }
 }
