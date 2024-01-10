@@ -94,6 +94,7 @@ namespace TaskMgmt.Services.ProjectTasks
                 CurrentStatusId = newTask.CurrentStatusId
             };
             await _projectTaskRepository.Add(task);
+            var created = await _projectTaskRepository.GetById(task.ProjectTaskId);
 
             return new ProjectTaskDto
             {
@@ -102,7 +103,7 @@ namespace TaskMgmt.Services.ProjectTasks
                 DueDate = task.DueDate.ToShortDateString(),
                 Assignee = task.Assignee.Email,
                 CreatedBy = task.Creator.Email,
-                CurrentStatus = task.CurrentStatus.StatusText,
+                CurrentStatus = created.CurrentStatus.StatusText,
             };
         }
     }
