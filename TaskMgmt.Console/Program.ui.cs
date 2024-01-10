@@ -35,7 +35,7 @@ class Program2
             /create <projectName> <projectDescription> <groupId>        := create a project
         
     ";
-    static void Main()
+    static void Main2()
     {
         ConsoleProject cproj = new ConsoleProject();
 
