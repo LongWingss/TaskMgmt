@@ -8,7 +8,7 @@ namespace TaskMgmt.DataAccess.Models
     {
         public int UserId { get; set; }
         public int GroupId { get; set; }
-        public bool? IsAdmin { get; set; }
+        public bool? IsAdmin { get; set; } = false;
 
         [JsonIgnore]
         public Group Group { get; set; } = null!;

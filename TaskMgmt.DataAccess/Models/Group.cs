@@ -8,7 +8,7 @@ namespace TaskMgmt.DataAccess.Models
     {
         public int GroupId { get; set; }
         public string GroupName { get; set; } = null!;
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [JsonIgnore]
         public ICollection<Invitation> Invitations { get; set; } = null!;
