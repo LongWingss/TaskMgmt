@@ -196,6 +196,9 @@ namespace TaskMgmt.Console
                         break;
                     case "3":
                         //create
+                        System.Console.Write("Enter Group Name : ");
+                        var GroupName = System.Console.ReadLine();
+                        
                         break;
                     default:
                         System.Console.WriteLine("Invalid option");
@@ -214,54 +217,31 @@ namespace TaskMgmt.Console
             }
         }
 
-        public async Task<bool> GetProjects(int groupID , string token)
+        public async Task CreateGroup(string Name)
         {
-            var response = await apiClient.GetAsyncToken($"groups/{groupID}/projects", token);
-            string content = await response.Content.ReadAsStringAsync();
-            var projects = JsonSerializer.Deserialize<List<ProjectResponseDto>>(content);
-            foreach (var project in projects)
+            GroupRequestDTO GroupRequestDTO = new GroupRequestDTO
             {
-                System.Console.WriteLine($"ProjectID: {project.projectId} ProjectName: {project.projectName}");
-            }
-            System.Console.WriteLine("\n\n");
-            var result = GroupMenu(groupID, userToken);
-            while (result.Result) ;
-            return true;
-        }
-        
-
-
-        public async Task<bool> GroupMenu(int groupID ,string token)
-        {
-            while(true)
+                GroupName = Name
+            };
+            try
             {
-                System.Console.WriteLine("1.Invite Others");
-                string choice = System.Console.ReadLine();
-                switch (choice)
-                { 
-                    case "1":
-                        System.Console.Write("Enter email of the user you want to invite: ");
-                        string email = System.Console.ReadLine();
-                        var emailConsoleDTO = new EmailDTO {
-                            Email = email
-                        };
-
-                        var response = await apiClient.PostAsyncToken($"groups/{groupID}/invitations", emailConsoleDTO ,userToken);
-                        if(response.IsSuccessStatusCode)
-                        {
-                            System.Console.WriteLine("Invite Sent Successfully");
-                        }
-                        else
-                        {
-                            System.Console.WriteLine("Unsuccessfull.");
-                        }
-                        break;
-                    default:
-                        System.Console.WriteLine("Wrong option");
-                        break;
+                var response = await apiClient.PostAsync("groups", GroupRequestDTO);
+                if (response.IsSuccessStatusCode)
+                {
+                    userToken = await response.Content.ReadAsStringAsync();
+                    System.Console.WriteLine("Welcome.");
+                    Home(userToken);
                 }
-
+                else
+                {
+                    System.Console.WriteLine("Group Creation Failed.");
+                }
             }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
+
         }
 
         //Function for checking validitiy of email
