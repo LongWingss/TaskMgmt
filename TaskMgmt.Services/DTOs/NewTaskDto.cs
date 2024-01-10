@@ -1,14 +1,13 @@
-﻿namespace TaskMgmt.Services.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TaskMgmt.Services.DTOs
 {
     public class NewTaskDto
     {
         public string Description { get; set; } = null!;
         public DateTime DueDate { get; set; }
-        public string CreatedBy { get; set; } = null!;
-        public string CurrentStatus { get; set; } = null!;
-
-        public int AssigneeId { get; set; }
-        public int CreatorId { get; set; }
+        [EmailAddress]
+        public string AssigneeMail { get; set; } = null!;
         public int CurrentStatusId { get; set; }
     }
 }

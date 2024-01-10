@@ -1,21 +1,33 @@
-﻿using TaskMgmt.DataAccess.Models;
+﻿using System.Threading.Tasks.Dataflow;
+using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
 using TaskMgmt.Services.DTOs;
+using TaskMgmt.Services.CustomExceptions;
 
 namespace TaskMgmt.Services.ProjectTasks
 {
     public class ProjectTaskService : IProjectTaskService
     {
-        private readonly IProjectTaskRepository projectTaskRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IGroupRepository _groupRepository;
+        private readonly IProjectTaskRepository _projectTaskRepository;
+        private readonly IProjectRepository _projectRepository;
 
-        public ProjectTaskService(IProjectTaskRepository repo)
+        public ProjectTaskService(
+            IProjectTaskRepository projectTaskRepo,
+            IUserRepository userRepo,
+            IGroupRepository groupRepo,
+            IProjectRepository projectRepo)
         {
-            projectTaskRepository = repo;
+            _projectTaskRepository = projectTaskRepo;
+            _userRepository = userRepo;
+            _groupRepository = groupRepo;
+            _projectRepository = projectRepo;
         }
 
         public async Task<ProjectTaskDto?> Get(int taskId)
         {
-            var currentTask = await projectTaskRepository.GetById(taskId);
+            var currentTask = await _projectTaskRepository.GetById(taskId);
             if (currentTask == null)
             {
                 return null;
@@ -33,10 +45,12 @@ namespace TaskMgmt.Services.ProjectTasks
             return projectTaskDTo;
         }
 
-        public async Task<IEnumerable<ProjectTaskDto>> GetAll(int projectId)
+        public async Task<IEnumerable<ProjectTaskDto>> GetAll(int groupId, int projectId)
         {
-            var allProjectTasks = await projectTaskRepository.GetAll();
-            var currProjectTasks = allProjectTasks.ToList().Where(a => a.ProjectId==projectId);
+            var allProjectTasks = await _projectTaskRepository.GetAll();
+            var currProjectTasks = allProjectTasks
+                        .Where(a => a.ProjectId == projectId && a.Project.GroupId == groupId)
+                        .ToList();
             var results = new List<ProjectTaskDto>();
 
             foreach(var task in  currProjectTasks)
@@ -55,19 +69,42 @@ namespace TaskMgmt.Services.ProjectTasks
             return results;
         }
 
-        public async Task<ProjectTask> CreateTask(int projectId, NewTaskDto newTask)
+        public async Task<ProjectTaskDto> CreateTask(int userId, int groupId, int projectId, NewTaskDto newTask)
         {
+            var project = await _projectRepository.GetByIdAsync(groupId, projectId);
+            if (project is null)
+            {
+                throw new ProjectNotFoundException("Project not found");
+            }
+
+            var assignee = await _userRepository.GetByEmail(newTask.AssigneeMail);
+            if (assignee is null)
+            {
+                throw new AssigneeNotFoundException("Assignee mail is not within group");
+            }
+
             var task = new ProjectTask
             {
                 Description = newTask.Description,
+                CreatedAt = DateTime.UtcNow,
                 DueDate = newTask.DueDate,
-                AssigneeId = newTask.AssigneeId,
-                CreatorId = newTask.CreatorId,
+                CreatorId = userId,
+                AssigneeId = assignee.UserId,
                 ProjectId = projectId,
                 CurrentStatusId = newTask.CurrentStatusId
             };
-            await projectTaskRepository.Add(task);
-            return task;
+            await _projectTaskRepository.Add(task);
+            var created = await _projectTaskRepository.GetById(task.ProjectTaskId);
+
+            return new ProjectTaskDto
+            {
+                TaskId = task.ProjectTaskId,
+                Description = task.Description,
+                DueDate = task.DueDate.ToShortDateString(),
+                Assignee = task.Assignee.Email,
+                CreatedBy = task.Creator.Email,
+                CurrentStatus = created.CurrentStatus.StatusText,
+            };
         }
     }
 }
