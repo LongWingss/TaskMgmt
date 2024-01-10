@@ -188,6 +188,11 @@ namespace TaskMgmt.Console
                         break;
                     case "2":
                         //enroll
+                        System.Console.WriteLine("Enroll into group");
+                        System.Console.WriteLine("Enter referral code: ");
+                        var referral=Convert.ToInt32(System.Console.ReadLine());
+                        Enroll(referral);
+
                         break;
                     case "3":
                         //create
@@ -218,6 +223,28 @@ namespace TaskMgmt.Console
         public bool IsStrongPassword(string password)
         {
             return password.Length > 8;
+        }
+        public async Task Enroll(int referral)
+        {
+            try
+            {
+                var response = await apiClient.PostAsync("enrollments", referral);
+                if (response.IsSuccessStatusCode)
+                {
+                   // userToken = await response.Content.ReadAsStringAsync();
+                    System.Console.WriteLine("Successfully Enrolled");
+                 
+                }
+                else
+                {
+                    System.Console.WriteLine(" Enrollment Failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
+
         }
     }
 }

@@ -2,7 +2,6 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using TaskMgmt.Api.Middlewares;
 using TaskMgmt.Services.ProjectTasks;
 using TaskMgmt.Services;
 using TaskMgmt.DataAccess;
