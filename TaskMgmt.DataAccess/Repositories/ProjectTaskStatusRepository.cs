@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,9 +24,9 @@ namespace TaskMgmt.DataAccess.Repositories
                             .ToListAsync();
         }
 
-        public async Task<ProjectTaskStatus> GetById(int Id)
+        public async Task<ProjectTaskStatus?> GetById(int Id)
         {
-            var status = await _dBcontext.ProjectTaskStatuses.Where(t => t.ProjectTaskStatusId == Id).Include(e=>e.ProjectId).SingleOrDefaultAsync();
+            var status = await _dBcontext.ProjectTaskStatuses.Where(t => t.ProjectTaskStatusId == Id).Include(e => e.ProjectId).SingleOrDefaultAsync();
             return status;
         }
 
@@ -34,6 +35,29 @@ namespace TaskMgmt.DataAccess.Repositories
             _dBcontext.ProjectTaskStatuses.Add(status);
             await _dBcontext.SaveChangesAsync();
         }
-                            
+
+        public async Task InitProjectStatus(int projectId, Dictionary<string, string>? statusColorPairs = null)
+        {
+            var DefaultOptions = new Dictionary<string, string>
+            {
+                { "open", "#FF0000" },
+                { "in progress", "#FFFF00" },
+                { "completed", "#00FF00" }
+            };
+
+            if (statusColorPairs is null)
+            {
+                statusColorPairs = DefaultOptions;
+            }
+
+            foreach (var (status, color) in statusColorPairs)
+            {
+                await _dBcontext.AddAsync(new ProjectTaskStatus{
+                    ProjectId = projectId,
+                    StatusText = status,
+                    StatusColor = color,
+                });
+            }
+        }
     }
 }
