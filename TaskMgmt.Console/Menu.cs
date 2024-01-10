@@ -20,18 +20,6 @@ namespace TaskMgmt.Console
         {
             apiClient = new ApiClient(ApiConstants.ApiUrl);
         }
-
-        //
-
-        //public async void SignIn()
-        //{
-        //    var result = await apiClient.GetAsync<List<GroupDTO>>("groups");
-        //    foreach (var i in result)
-        //    {
-        //        System.Console.WriteLine($"GroupName: {i.GroupName}\n");
-        //    }
-        //}
-        //Function called when Option Signup is choosen.
         public async Task<bool> SignIn()
         {
             System.Console.Write("Enter Email: ");
@@ -136,7 +124,7 @@ namespace TaskMgmt.Console
                 System.Console.WriteLine(ex.Message);
             }
         }
-        public void SignUpReferral()
+        public async void SignUpReferral()
         {
             System.Console.Write("Enter Name: ");
             string name = System.Console.ReadLine();
@@ -144,9 +132,53 @@ namespace TaskMgmt.Console
             string email = System.Console.ReadLine();
             System.Console.Write("Enter Password");
             string password = System.Console.ReadLine();
+            System.Console.Write("Enter Groupname");
+            string groupName = System.Console.ReadLine();
             System.Console.Write("Enter Referral: ");
             string referral = System.Console.ReadLine();
             //call signureferral api
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                System.Console.WriteLine("Please provide both email and password.");
+                return;
+            }
+            if (!IsValidEmail(email))
+            {
+                System.Console.WriteLine("Invalid email format. Please enter a valid email address.");
+                return;
+            }
+
+            if (!IsStrongPassword(password))
+            {
+                System.Console.WriteLine("Weak password. Please use a stronger password.");
+                return;
+            }
+            var signUpReferralDtoConsole = new SignUpReferralDTO
+            {
+                Email = email,
+                Name = name,
+                Password = password,
+                GroupName = groupName,
+                ReferralCode = referral
+            };
+            try
+            {
+                var response = await apiClient.PostAsync("signup", signUpReferralDtoConsole);
+                if (response.IsSuccessStatusCode)
+                {
+                    userToken = await response.Content.ReadAsStringAsync();
+                    System.Console.WriteLine("Welcome.");
+                    Home(userToken);
+                }
+                else
+                {
+                    System.Console.WriteLine("SignUp Failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine(ex.Message);
+            }
         }
         //function called when user successfully signup or login
         public async void Home(string userToken)
