@@ -1,22 +1,21 @@
-﻿using TaskMgmt.Services.Interfaces;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 using MimeKit;
+using TaskMgmt.Services.ConfigurationClass;
+using TaskMgmt.Services.Interfaces;
 
 namespace TaskMgmt.Services
 {
 
-    public class EmailNotificationService : INotificationService
+    public class EmailNotificationService : INotificationService, IDisposable
     {
         private readonly SmtpClient _client;
+        private readonly EmailConfiguration _emailConfig;
 
-        private const string SenderEmail = "taskmngement@gmail.com";
-        private const string SenderPassword = "pfwz ljoc mwct difx";
-
-        public EmailNotificationService()
+        public EmailNotificationService(IOptions<EmailConfiguration> config)
         {
-            _client = new SmtpClient();
-            _client.Connect("smtp.gmail.com", 465, true);
-            _client.Authenticate(SenderEmail, SenderPassword);
+            _emailConfig = config.Value;
+            _client = GetSmtpClient();
         }
 
         public async Task BulkNotifyAsync(IEnumerable<string> recipientIds, string subject, string message)
@@ -34,9 +33,10 @@ namespace TaskMgmt.Services
         private MimeMessage CreateEmailMessage(IEnumerable<string> recipientIds, string subject, string message)
         {
             var text = new MimeMessage();
-            text.From.Add(new MailboxAddress("TaskManagement", SenderEmail));
+            text.From.Add(new MailboxAddress(_emailConfig.SenderName, _emailConfig.SenderEmail));
             foreach (var recipientId in recipientIds)
             {
+                // TODO: validate email
                 text.To.Add(new MailboxAddress("", recipientId));
             }
             text.Subject = subject;
@@ -59,9 +59,19 @@ namespace TaskMgmt.Services
             }
         }
 
-        ~EmailNotificationService()
+        private SmtpClient GetSmtpClient()
         {
-            _client.Disconnect(true);
+            var client = new SmtpClient();
+            client.Connect(_emailConfig.SmtpServer, _emailConfig.SmtpPort, _emailConfig.UseSsl);
+            client.Authenticate(_emailConfig.SenderEmail, _emailConfig.SenderPassword);
+            return client;
+        }
+
+        public void Dispose()
+        {
+            _client?.Disconnect(true);
+            _client?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }
