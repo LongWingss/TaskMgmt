@@ -52,8 +52,14 @@ namespace TaskMgmt.DataAccess.Repositories
 
         public async Task<bool> IsMember(int userId, int groupId)
         {
-            return await _taskMgmntContext.UserGroups.AnyAsync(x=>x.GroupId == groupId && x.UserId == userId);
-                           
+            return await _taskMgmntContext.UserGroups.AnyAsync(x => x.GroupId == groupId && x.UserId == userId);
+
+        }
+
+        public async Task<User> GetById(int userId)
+        {
+            var user = await _taskMgmntContext.Users.FirstOrDefaultAsync(user => user.UserId == userId);
+            return user;
         }
     }
 }
