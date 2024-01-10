@@ -16,13 +16,20 @@ public class ApiClient
         };
     }
 
-    public async Task<HttpResponseMessage> GetAsync<T>(string endpoint)
+    public async Task<HttpResponseMessage> GetAsync(string endpoint)
     {
         HttpResponseMessage response = await httpClient.GetAsync(endpoint);
         return response;
     }
 
-    public async Task<HttpResponseMessage> PostAsync<T>(string endpoint, object data)
+    public async Task<HttpResponseMessage> GetAsyncToken(string endpoint, string token)
+    {
+        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        HttpResponseMessage response = await httpClient.GetAsync(endpoint);
+        return response;
+    }
+
+    public async Task<HttpResponseMessage> PostAsync(string endpoint, object data)
     {
         string jsonData = JsonSerializer.Serialize(data);
         HttpContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");

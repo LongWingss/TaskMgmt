@@ -68,9 +68,8 @@ namespace TaskMgmt.Services
             exists = await _groupRepository.CheckExists(groupName);
             if (exists)
             {
-                throw new Exception("Group already exists");
+                throw new GroupAlreadyExistsException("Group already exists");
             }
-
 
             int groupId = await _groupRepository.Add(new Group
             {
@@ -79,12 +78,50 @@ namespace TaskMgmt.Services
 
             int userId = await _userRepository.Add(new User
             {
+                Username = name,
                 Email = email,
                 PasswordHash = EncryptPassword(enteredPassword),
                 DefaultGroupId = groupId,
             });
 
             await _userRepository.EnrollUserToGroup(userId, groupId, isAdmin: true);
+
+            var jwtHelper = new JwtHelper();
+            return jwtHelper.GenerateToken(userId);
+        }
+        public async Task<string> SignUpWithReferral(string email, string enteredPassword, string name, string referralCode, string groupName)
+        {
+            bool exists = await _userRepository.UserExists(email);
+            if (exists)
+            {
+                throw new UserAlreadyExistsException("User already exists");
+            }
+
+            Invitation invitation = await _groupRepository.GetInvitationByRefCode(referralCode) ?? throw new Exception("Invitation not found");
+            Group group = await _groupRepository.GetById((int)invitation.GroupId);
+
+            if (groupName != group.GroupName)
+            {
+                throw new Exception("Invalid group name!");
+            }
+
+
+            if (invitation.Status)
+            {
+                throw new Exception("User already enrolled!");
+            }
+
+            int userId = await _userRepository.Add(new User
+            {
+                Username = name,
+                Email = email,
+                PasswordHash = EncryptPassword(enteredPassword),
+                DefaultGroupId = invitation.GroupId,
+            });
+
+            await _userRepository.EnrollUserToGroup(userId, (int)invitation.GroupId, isAdmin: false);
+            invitation.Status = true;
+            await _groupRepository.UpdateInvitation(invitation);
 
             var jwtHelper = new JwtHelper();
             return jwtHelper.GenerateToken(userId);

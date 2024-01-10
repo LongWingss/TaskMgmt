@@ -41,10 +41,8 @@ namespace TaskMgmt.DataAccess.Repositories
             var random = new Random();
             return random.Next(100000, 999999);
         }
-        public async Task<int> InviteUser(int userId, int groupId, string inviteeEmail)
+        public async Task<Invitation> InviteUser(int userId, int groupId, string inviteeEmail)
         {
-
-            //TODO : Precheck if there is already an exisiting invitaion for the email (check the expiration)
             var refcode = GenerateRefCode();
             var invitation = new Invitation
             {
@@ -56,7 +54,7 @@ namespace TaskMgmt.DataAccess.Repositories
             };
             _context.Invitations.Add(invitation);
             await _context.SaveChangesAsync();
-            return userId;
+            return invitation;
         }
         public Task<Invitation> GetInvitationByRefCode(string refCode)
         {
@@ -64,13 +62,15 @@ namespace TaskMgmt.DataAccess.Repositories
             return invitation;
         }
 
-        public async Task Enroll(Invitation invitation, string referralCode, UserGroup usergrp)
+        public async Task Enroll(UserGroup usergrp)
         {
-
-            _context.Invitations.Add(invitation);
             _context.UserGroups.Add(usergrp);
             await _context.SaveChangesAsync();
-
+        }
+        public async Task UpdateInvitation(Invitation invitation)
+        {
+            _context.Invitations.Update(invitation);
+            await _context.SaveChangesAsync();
         }
 
         //public async Task<int> GetGroupIdFromReferralCode(string referralCode)

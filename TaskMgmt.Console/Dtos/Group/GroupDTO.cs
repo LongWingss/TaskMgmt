@@ -5,9 +5,10 @@ namespace TaskMgmt.Console.Dtos.Group
 {
     public class GroupDTO
     {
-        public int GroupId { get; set; }
-        public string GroupName { get; set; } = null!;
-        public DateTime CreatedAt { get; set; }
+        public int groupId { get; set; }
+        public string groupName { get; set; }
+        public DateTime createdAt { get; set; }
+
 
         //public ICollection<Invitation> Invitations { get; set; } = null!;
         //public ICollection<Project> Projects { get; set; } = null!;

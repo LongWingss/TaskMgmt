@@ -21,7 +21,7 @@ static class Program
                     var signInTask = menu.SignIn();
                     if(signInTask.Result)
                     {
-                        Console.WriteLine("Success");
+                        //Console.WriteLine("Success");
                     }
                     else
                     {
@@ -40,6 +40,16 @@ static class Program
                 default:
                     Console.WriteLine("Invalid choice. Please try again.");
                     break;
+            }
+            Console.WriteLine("Press 0 to exit.");
+            int ans = Convert.ToInt32(Console.ReadLine());
+            if(ans == 0)
+            {
+                break;
+            }
+            else
+            {
+                Console.Clear();
             }
         }
     }
