@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using TaskMgmt.Console;
 
-class Program
+class Program2
 {
     static List<string> ? ConsoleReadInput()
     {
@@ -35,7 +35,7 @@ class Program
             /create <projectName> <projectDescription> <groupId>        := create a project
         
     ";
-    static void Main()
+    static void Main2()
     {
         ConsoleProject cproj = new ConsoleProject();
 
