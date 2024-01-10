@@ -11,7 +11,6 @@ static class Program
             Console.WriteLine("2. Sign Up");
             Console.WriteLine("3. Sign Up with Referral");
             Console.WriteLine("4. Exit");
-
             Console.Write("Choose an option: ");
             string choice = Console.ReadLine();
 
