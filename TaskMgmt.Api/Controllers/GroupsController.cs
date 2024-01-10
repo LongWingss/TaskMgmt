@@ -26,14 +26,21 @@ namespace TaskMgmt.Api.Controllers
         [Authorize]
         public async Task<IActionResult> GetAll()
         {
-            if (int.TryParse(User.FindFirst("UserId").Value, out int userid))
+            try
             {
-                var groups = await _groupService.GetAll(userid);
-                return Ok(groups);
+                if (int.TryParse(User.FindFirst("UserId").Value, out int userid))
+                {
+                    var groups = await _groupService.GetAll(userid);
+                    return Ok(groups);
+                }
+                else
+                {
+                    return BadRequest("Invalid UserId");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest("Invalid UserId");
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
 
         }
@@ -72,6 +79,10 @@ namespace TaskMgmt.Api.Controllers
             {
                 return BadRequest(ex.Message);
             }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
         [GroupMembershipAuthorize("groupId")]
         [HttpPost("{groupId}/invitations")]
@@ -85,7 +96,7 @@ namespace TaskMgmt.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
@@ -102,7 +113,7 @@ namespace TaskMgmt.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
     }
