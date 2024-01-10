@@ -1,5 +1,5 @@
 using AutoMapper;
-using TaskMgmt.Api.Dtos;
+using TaskMgmt.Api.DTO.Project;
 using TaskMgmt.DataAccess.Models;
 
 namespace TaskMgmt.Api.Profiles
