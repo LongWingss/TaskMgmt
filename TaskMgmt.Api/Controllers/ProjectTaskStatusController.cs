@@ -43,13 +43,13 @@ namespace TaskMgmt.Api.Controllers
 
         // POST api/<TaskStatusesController>
         [HttpPost]
-        public IActionResult Post([FromBody] ProjectTaskStatusCreateDto value)
+        public IActionResult Post([FromRoute] int projectId, [FromBody] ProjectTaskStatusCreateDto value)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState); 
             }
-            _projectTaskStatusService.Add(value);            
+            _projectTaskStatusService.Add(projectId, value);            
             return CreatedAtAction(nameof(Post), value);
         }
     }

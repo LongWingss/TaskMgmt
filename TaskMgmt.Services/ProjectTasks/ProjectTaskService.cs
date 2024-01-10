@@ -81,7 +81,7 @@ namespace TaskMgmt.Services.ProjectTasks
             var assignee = await _userRepository.GetByEmail(newTask.AssigneeMail);
             if (assignee is null)
             {
-                throw new AssigneeNotFoundException("Assignee mail is not within group");
+                throw new AssigneeNotFoundException("Assignee not found");
             }
 
             var task = new ProjectTask
