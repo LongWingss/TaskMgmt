@@ -1,17 +1,17 @@
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.EntityFrameworkCore;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using TaskMgmt.Api.Middlewares;
-using TaskMgmt.Services.ProjectTasks;
-using TaskMgmt.Services;
+using TaskMgmt.Api.Profiles;
 using TaskMgmt.DataAccess;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
-using Microsoft.OpenApi.Models;
-using TaskMgmt.Api.Profiles;
+using TaskMgmt.Services;
+using TaskMgmt.Services.ConfigurationClass;
 using TaskMgmt.Services.Interfaces;
+using TaskMgmt.Services.ProjectTasks;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +31,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration"));
 builder.Services.AddScoped<INotificationService, EmailNotificationService>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddAutoMapper(typeof(ProjectProfile));
