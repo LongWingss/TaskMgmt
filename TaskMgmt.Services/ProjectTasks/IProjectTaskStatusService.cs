@@ -14,6 +14,6 @@ namespace TaskMgmt.Services.ProjectTasks
 
         public Task<IEnumerable<ProjectTaskStatusDto>> GetAll(int projectId);
         public Task<ProjectTaskStatusDto?> GetById(int taskId);
-        public Task Add(int projectId, ProjectTaskStatusCreateDto status);
+        public Task Add(int userId, int groupId, int projectId, ProjectTaskStatusCreateDto status);
     }
 }
