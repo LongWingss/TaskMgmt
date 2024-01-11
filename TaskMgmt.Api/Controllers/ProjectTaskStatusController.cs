@@ -52,7 +52,7 @@ namespace TaskMgmt.Api.Controllers
         [HttpPost]
         [GroupMembershipAuthorize("groupId")]
         [Authorize]
-        public IActionResult Post([FromRoute] int groupId, [FromRoute] int projectId, [FromBody] ProjectTaskStatusCreateDto value)
+        public async Task<IActionResult> Post([FromRoute] int groupId, [FromRoute] int projectId, [FromBody] ProjectTaskStatusCreateDto value)
         {
             if (!ModelState.IsValid)
             {
@@ -63,8 +63,8 @@ namespace TaskMgmt.Api.Controllers
             {
                 var userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
 
-                _projectTaskStatusService.Add(userId, groupId, projectId, value);
-                return CreatedAtAction(nameof(Post), value);
+                var newStatus = await _projectTaskStatusService.Add(userId, groupId, projectId, value);
+                return CreatedAtAction(nameof(GetById), new { projectId, groupId, statusId = newStatus.ProjectTaskStatusId }, newStatus);
             }
             catch (Exception ex)
             {
