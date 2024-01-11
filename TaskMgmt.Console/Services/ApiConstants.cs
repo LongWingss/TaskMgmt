@@ -12,5 +12,8 @@ namespace TaskMgmt.Console.Services
         public const string Login = "login";
         public const string Signup = "signup";
         public const string Groups = "groups";
+        public const string Projects = "projects";
+        public const string Tasks = "tasks";
+        public const string Statuses = "statuses";
     }
 }

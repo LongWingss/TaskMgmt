@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 public class ApiClient
 {
@@ -16,49 +15,37 @@ public class ApiClient
         };
     }
 
-    public async Task<HttpResponseMessage> GetAsync(string endpoint)
+    public HttpResponseMessage Get(string endpoint)
     {
-        HttpResponseMessage response = await httpClient.GetAsync(endpoint);
+        HttpResponseMessage response = httpClient.GetAsync(endpoint).Result;
         return response;
     }
 
-    public async Task<HttpResponseMessage> GetAsyncToken(string endpoint, string token)
+    public HttpResponseMessage GetToken(string endpoint, string token)
     {
         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-        HttpResponseMessage response = await httpClient.GetAsync(endpoint);
+        HttpResponseMessage response = httpClient.GetAsync(endpoint).Result;
         return response;
     }
 
-    public async Task<HttpResponseMessage> PostAsync(string endpoint, object data)
+    public HttpResponseMessage Post(string endpoint, object data)
     {
         string jsonData = JsonSerializer.Serialize(data);
         HttpContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-        HttpResponseMessage response = await httpClient.PostAsync(endpoint, content);
+        HttpResponseMessage response = httpClient.PostAsync(endpoint, content).Result;
         return response;
     }
 
-    public async Task<HttpResponseMessage> PostAsyncToken(string endpoint, object data , string token)
+    public HttpResponseMessage PostToken(string endpoint, object data, string token)
     {
         string jsonData = JsonSerializer.Serialize(data);
         HttpContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-        HttpResponseMessage response = await httpClient.PostAsync(endpoint, content);
+        HttpResponseMessage response = httpClient.PostAsync(endpoint, content).Result;
         return response;
     }
-
-    //public async Task<ApiResponse<T>> PutAsync<T>(string endpoint, object data)
-    //{
-    //    string jsonData = JsonSerializer.Serialize(data);
-    //    HttpContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
-
-    //    HttpResponseMessage response = await httpClient.PutAsync(endpoint, content);
-    //    return await HandleResponse<T>(response);
-    //}
-
-    //public async Task<ApiResponse<T>> DeleteAsync<T>(string endpoint)
-    //{
-    //    HttpResponseMessage response = await httpClient.DeleteAsync(endpoint);
+}
     //    return await HandleResponse<T>(response);
     //}
 
@@ -77,4 +64,3 @@ public class ApiClient
     //    }
     //    return apiResponse;
     //}
-}
