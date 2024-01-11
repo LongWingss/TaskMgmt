@@ -1,21 +1,29 @@
 ﻿using TaskMgmt.Console;
+using TaskMgmt.Console.Services;
+using TaskMgmt.Services.ProjectTasks;
+
 static class Program
 {
     public static void Main()
-    {
-        
-        Menu menu = new Menu();
+    {       
+        //global user maagment
+        UserService userService = new UserService();
+        GroupService groupService = new GroupService(userService.userToken);
+        ProjectService projectService = new ProjectService(userService.userToken);
+        TaskService taskService = new TaskService();
+        TaskStatusService statusService = new();
+
         while (true)
         {
 
             Console.Clear();
             Console.WriteLine("Welcome to the Task Management Console App!");
-
+            
             try
             {
                 Console.WriteLine("\n1. Sign In");
                 Console.WriteLine("2. Sign Up");
-                Console.WriteLine("3. Sign Up with Referral");
+                Console.WriteLine("3. Sign Up With Referal");
                 Console.WriteLine("4. Exit");
 
                 Console.Write("Choose an option: ");
@@ -24,31 +32,68 @@ static class Program
                 switch (choice)
                 {
                     case "1":
-                        var signInTask = menu.SignIn();
-                        if (signInTask.Result)
+                        userService.SignIn();
+                        if (userService.IsUserValid())
                         {
-                            //Console.WriteLine("Success");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Sign-in failed. Please try again.");
-                            Console.WriteLine("Press 0 to exit.");
-                            var ans = Console.ReadLine();
-                            if (ans == "0")
+                            Console.WriteLine("Login Success!");
+                            groupService.DisplayGroup(userService.db.token);
+                            string response = groupService.DisplayMenu();
+                            switch(response)
                             {
-                                break;
-                            }
-                            else
-                            {
-                                Console.Clear();
+                                case "1":
+                                    userService.db.groupId = projectService.GetProjects(userService.db.token);
+                                    var res = projectService.ProjectMenu(userService.db.token, userService.db.groupId);
+                                    switch(res)
+                                    {
+                                        case "1":
+                                            projectService.InviteUser(userService.db.token, userService.db.groupId);
+                                            break;
+                                        case "2":
+                                            var flag = projectService.CreateNewProject(userService.db.token ,userService.db.groupId);
+                                          
+                                            break;
+                                        case "3":                                            
+                                            System.Console.WriteLine("Project ID: ");
+                                            var projectId = Convert.ToInt32(Console.ReadLine() ?? "0");
+                                            statusService.GetTasks(userService.db.token, userService.db.groupId, projectId);
+                                            taskService.GetTasks(userService.db.token, userService.db.groupId, projectId);
+                                            System.Console.WriteLine("1. Create New Task\n2. Go Back");
+                                            switch (Console.ReadLine() ?? string.Empty)
+                                            {
+                                                case "1":
+                                                    taskService.CreateTask(userService.db.token, userService.db.groupId, projectId);
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    break;
+                                case "2":
+                                    groupService.Enroll(userService.db.token);
+                                    break;
+                                case "3":
+                                    groupService.CreateGroup(userService.db.token);
+                                    break;
                             }
                         }
+
                         break;
                     case "2":
-                        menu.SignUp();
+                        userService.SignUp();
+                        if (userService.IsUserValid())
+                        {
+                            Console.WriteLine("Account Created Succesfully!");   
+                            groupService.DisplayGroup(userService.db.token);
+                            groupService.DisplayMenu();
+                        }
+                        Console.ReadLine();
+
                         break;
                     case "3":
-                        menu.SignUpReferral();
+                        
                         break;
                     case "4":
                         Environment.Exit(0);
