@@ -39,11 +39,12 @@ namespace TaskMgmt.DataAccess.Models
                 .HasForeignKey(e => e.OwnerId)
                 .IsRequired();
 
-            modelBuilder.Entity<ProjectTaskStatus>().HasIndex(e => new { e.ProjectId, e.StatusText })
-                .IsUnique();
+            // modelBuilder.Entity<ProjectTaskStatus>().HasIndex(e => new { e.ProjectId, e.StatusText })
+            //     .IsUnique();
 
             modelBuilder.Entity<ProjectTask>(
-                nestedBuilder => {
+                nestedBuilder =>
+                {
                     nestedBuilder.HasOne(e => e.Assignee)
                         .WithMany()
                         .HasPrincipalKey(e => e.UserId)
@@ -58,13 +59,30 @@ namespace TaskMgmt.DataAccess.Models
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
-            
-            modelBuilder.Entity<ProjectTaskStatus>().HasOne(e => e.Project)
-                    .WithMany()
-                    .HasPrincipalKey(e => e.ProjectId)
-                    .HasForeignKey(e => e.ProjectId)
-                    .OnDelete(DeleteBehavior.NoAction)
-                    .IsRequired();
+
+            // modelBuilder.Entity<ProjectTaskStatus>().HasOne(e => e.Project)
+            //         .WithMany()
+            //         .HasPrincipalKey(e => e.ProjectId)
+            //         .HasForeignKey(e => e.ProjectId)
+            //         .OnDelete(DeleteBehavior.NoAction)
+            //         .IsRequired();
+            modelBuilder.Entity<ProjectTaskStatus>(entity =>
+            {
+                entity.HasKey(e => e.ProjectTaskStatusId); // Primary key
+
+                entity.Property(e => e.StatusText).IsRequired().HasMaxLength(450);
+                entity.Property(e => e.StatusColor).IsRequired();
+
+                // Foreign key relationship
+                entity.HasOne(d => d.Project)
+                      .WithMany(p => p.ProjectTaskStatuses)
+                      .HasForeignKey(d => d.ProjectId)
+                      .OnDelete(DeleteBehavior.ClientSetNull)
+                      .IsRequired();
+
+                // Unique constraint
+                entity.HasIndex(e => new { e.ProjectId, e.StatusText }).IsUnique();
+            });
         }
     }
 }

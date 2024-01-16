@@ -15,5 +15,6 @@ namespace TaskMgmt.DataAccess.Models
         public Group Group { get; set; } = null!;
         public User Owner { get; set; } = null!;
         public ICollection<ProjectTask> ProjectTasks { get; set; } = null!;
+        public ICollection<ProjectTaskStatus> ProjectTaskStatuses { get; set; } = null!;
     }
 }
