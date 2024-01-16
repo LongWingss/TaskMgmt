@@ -55,12 +55,18 @@ namespace TaskMgmt.Console.Services
 
         public void Enroll(string token)
         {
-            System.Console.WriteLine("Enroll into group: ");
+            System.Console.Write("Enter group name");
+            string groupName = System.Console.ReadLine();
             System.Console.WriteLine("Enter referral code: ");
-            var referral = Convert.ToInt32(System.Console.ReadLine());
+            string referral = System.Console.ReadLine();
+            InvitationDTO invitationDTO = new InvitationDTO
+            {
+                GroupName = groupName,
+                ReferralCode = referral
+            };
             try
             {
-                var response = apiClient.PostToken("enrollments", referral , userToken);
+                var response = apiClient.PostToken("enrollments", invitationDTO , userToken);
                 if (response.IsSuccessStatusCode)
                 {
                     System.Console.WriteLine("Successfully Enrolled");

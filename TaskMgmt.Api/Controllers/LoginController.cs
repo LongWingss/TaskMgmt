@@ -3,6 +3,7 @@ using TaskMgmt.Api.DTO;
 using TaskMgmt.DataAccess.Repositories;
 using TaskMgmt.Services;
 using TaskMgmt.Services.CustomExceptions;
+using TaskMgmt.Services.Logger;
 
 namespace TaskMgmt.Api.Controllers
 {
@@ -10,10 +11,12 @@ namespace TaskMgmt.Api.Controllers
     public class LoginController : Controller
     {
         private readonly IUserService _userService;
+        private readonly ILoggerManager _logger;
 
-        public LoginController(IUserService userService)
+        public LoginController(IUserService userService , ILoggerManager logger)
         {
             _userService = userService;
+            _logger = logger;
         }
 
         [Route("api/login")]
@@ -40,28 +43,34 @@ namespace TaskMgmt.Api.Controllers
                 if (signUpDto.ReferralCode == null)
                 {
                     string token = await _userService.SignUp(signUpDto.Email, signUpDto.Password, signUpDto.Name, signUpDto.GroupName);
+                    _logger.LogInfo("User SignUp Successfull.");
                     return Ok(token);
                 }
                 else
                 {
                     string token = await _userService.SignUpWithReferral(signUpDto.Email, signUpDto.Password, signUpDto.Name, signUpDto.ReferralCode, signUpDto.GroupName);
+                    _logger.LogInfo("User SignUp Successfull.");
                     return Ok(token);
                 }
             }
             catch (GroupAlreadyExistsException ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
             catch (UserAlreadyExistsException ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(StatusCodes.Status409Conflict, ex.Message);
             }
             catch (GroupNotFoundException ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(StatusCodes.Status404NotFound, ex.Message);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
 

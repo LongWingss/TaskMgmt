@@ -16,13 +16,15 @@ using TaskMgmt.Services;
 using TaskMgmt.Services.ConfigurationClass;
 using TaskMgmt.Services.Interfaces;
 using TaskMgmt.Services.ProjectTasks;
+using NLog;
+using TaskMgmt.Services.Logger;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
-
-
+LogManager.Setup().LoadConfigurationFromFile(string.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddSingleton<ILoggerManager, LoggerManager>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<TaskMgmntContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("TaskMgmntDb")));
