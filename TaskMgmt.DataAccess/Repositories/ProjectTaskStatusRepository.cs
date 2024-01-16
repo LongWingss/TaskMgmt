@@ -36,7 +36,7 @@ namespace TaskMgmt.DataAccess.Repositories
             await _dBcontext.SaveChangesAsync();
         }
 
-        public async Task InitProjectStatus(int projectId, Dictionary<string, string>? statusColorPairs = null)
+        public void InitProjectStatus(Project project, Dictionary<string, string>? statusColorPairs = null)
         {
             var DefaultOptions = new Dictionary<string, string>
             {
@@ -54,12 +54,11 @@ namespace TaskMgmt.DataAccess.Repositories
             {
                 _dBcontext.Add(new ProjectTaskStatus
                 {
-                    ProjectId = projectId,
                     StatusText = status,
                     StatusColor = color,
+                    Project = project,
                 });
             }
-            await _dBcontext.SaveChangesAsync();
         }
     }
 }

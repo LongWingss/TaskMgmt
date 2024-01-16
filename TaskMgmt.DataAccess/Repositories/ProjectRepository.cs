@@ -12,39 +12,44 @@ namespace TaskMgmt.DataAccess.Repositories
             _dbcontext = dbcontext;
         }
 
-        public async Task<IEnumerable<Project>> GetAllAsync(int groupId)
+        public IEnumerable<Project> GetAll(int groupId)
         {
-            return await _dbcontext.Projects.Where(p => p.GroupId == groupId).ToListAsync();
+            return _dbcontext.Projects.Where(p => p.GroupId == groupId).ToList();
         }
 
-        public async Task<Project?> GetByIdAsync(int groupId, int id)
+        public Project? GetById(int groupId, int id)
         {
-            return await _dbcontext.Projects.FirstOrDefaultAsync(p => p.GroupId == groupId && p.ProjectId == id);
+            return _dbcontext.Projects.FirstOrDefault(p => p.GroupId == groupId && p.ProjectId == id);
         }
 
-        public async Task CreateAsync(Project project)
+        public void Create(Project project)
         {
             _dbcontext.Projects.Add(project);
-            await _dbcontext.SaveChangesAsync();
         }
 
-        public async Task EditAsync(Project project)
+        public void Edit(Project project)
         {
             _dbcontext.Entry(project).State = EntityState.Modified;
-            await _dbcontext.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int groupId, int id)
+        public void Delete(int groupId, int id)
         {
-            var project = await _dbcontext.Projects.FirstOrDefaultAsync(p => p.GroupId == groupId && p.ProjectId == id);
+            var project = _dbcontext.Projects.FirstOrDefault(p => p.GroupId == groupId && p.ProjectId == id);
             if (project == null)
             {
                 throw new InvalidOperationException("Project not found.");
             }
 
             _dbcontext.Projects.Remove(project);
-            await _dbcontext.SaveChangesAsync();
         }
+
+
+        [Obsolete($"☠️☠️☠️ Use {nameof(GetById)} method instead ☠️☠️☠️", false)]
+        public Task<Project?> GetByIdAsync(int groupId, int id)
+        {
+            return _dbcontext.Projects.FirstOrDefaultAsync(p => p.GroupId == groupId && p.ProjectId == id);
+        }
+
 
     }
 }

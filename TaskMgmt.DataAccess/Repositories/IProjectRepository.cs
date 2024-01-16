@@ -4,10 +4,14 @@ namespace TaskMgmt.DataAccess.Repositories
 {
     public interface IProjectRepository
     {
-        Task<IEnumerable<Project>> GetAllAsync(int groupId);
+        IEnumerable<Project> GetAll(int groupId);
+        Project? GetById(int groupId, int id);
+        void Create(Project project);
+        void Edit(Project project);
+        void Delete(int groupId, int id);
+
+
+        [Obsolete($"☠️☠️☠️ Use {nameof(GetById)} method instead ☠️☠️☠️", false)]
         Task<Project?> GetByIdAsync(int groupId, int id);
-        Task CreateAsync(Project project);
-        Task EditAsync(Project project);
-        Task DeleteAsync(int groupId, int id);
     }
 }

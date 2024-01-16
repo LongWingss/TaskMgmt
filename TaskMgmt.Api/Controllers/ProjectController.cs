@@ -5,6 +5,7 @@ using TaskMgmt.Api.Attributes;
 using TaskMgmt.Api.DTO.Project;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
+using TaskMgmt.DataAccess.UnitOfWork;
 
 namespace TaskMgmt.Api.Controllers
 {
@@ -16,12 +17,14 @@ namespace TaskMgmt.Api.Controllers
         private readonly IProjectRepository _projectRepository;
         private readonly IProjectTaskStatusRepository _projectTaskStatusRepository;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProjectController(IProjectRepository projectRepository, IMapper mapper, IProjectTaskStatusRepository projectTaskStatusRepository)
+        public ProjectController(IProjectRepository projectRepository, IMapper mapper, IProjectTaskStatusRepository projectTaskStatusRepository, IUnitOfWork unitOfWork)
         {
             _projectRepository = projectRepository;
             _mapper = mapper;
             _projectTaskStatusRepository = projectTaskStatusRepository;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: api/groups/{groupId}/projects
@@ -32,7 +35,8 @@ namespace TaskMgmt.Api.Controllers
         {
             try
             {
-                var projects = await _projectRepository.GetAllAsync(groupId);
+                var projects = _projectRepository.GetAll(groupId);
+                await _unitOfWork.CommitAsync();
                 var projectsResponse = _mapper.Map<IEnumerable<ProjectResponseDto>>(projects);
 
                 return Ok(projectsResponse);
@@ -51,11 +55,12 @@ namespace TaskMgmt.Api.Controllers
         {
             try
             {
-                var project = await _projectRepository.GetByIdAsync(groupId, id);
+                var project = _projectRepository.GetById(groupId, id);
                 if (project == null)
                 {
                     return NotFound();
                 }
+                await _unitOfWork.CommitAsync();
                 var projectResponseDto = _mapper.Map<ProjectResponseDto>(project);
                 return Ok(projectResponseDto);
             }
@@ -83,8 +88,9 @@ namespace TaskMgmt.Api.Controllers
                 project.GroupId = groupId;
                 project.OwnerId = userId;
 
-                await _projectRepository.CreateAsync(project);
-                await _projectTaskStatusRepository.InitProjectStatus(project.ProjectId);
+                _projectRepository.Create(project);
+                _projectTaskStatusRepository.InitProjectStatus(project);
+                await _unitOfWork.CommitAsync();
                 var responseDto = _mapper.Map<ProjectResponseDto>(project);
 
                 return CreatedAtAction(nameof(GetProject), new { groupId, id = project.ProjectId }, responseDto);
