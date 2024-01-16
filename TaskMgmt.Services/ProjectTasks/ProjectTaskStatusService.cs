@@ -27,7 +27,7 @@ namespace TaskMgmt.Services.ProjectTasks
         }
 
 
-        public async Task Add(int userId, int groupId, int projectId, ProjectTaskStatusCreateDto newStatus)
+        public async Task<ProjectTaskStatusDto> Add(int userId, int groupId, int projectId, ProjectTaskStatusCreateDto newStatus)
         {
 
             var user = await _userRepository.GetById(userId);
@@ -41,6 +41,14 @@ namespace TaskMgmt.Services.ProjectTasks
                 StatusColor = newStatus.StatusColor
             };
             await _projectTaskStatusRepository.Add(status);
+
+            return new ProjectTaskStatusDto
+            {
+                ProjectTaskStatusId = status.ProjectTaskStatusId,
+                ProjectId = status.ProjectId,
+                StatusText = status.StatusText,
+                StatusColor = status.StatusColor,
+            };
         }
 
         public async Task<IEnumerable<ProjectTaskStatusDto>> GetAll(int projectId)

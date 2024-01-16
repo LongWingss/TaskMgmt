@@ -39,11 +39,11 @@ namespace TaskMgmt.Console.Services
             System.Console.WriteLine("Due Date: ");
             newTask.dueDate = DateTime.Parse(System.Console.ReadLine() ?? string.Empty);
             System.Console.WriteLine("Assignee Mail ID: ");
-            newTask.assigneeEmail = System.Console.ReadLine() ?? string.Empty;
+            newTask.assigneeMail = System.Console.ReadLine() ?? string.Empty;
             System.Console.WriteLine("Current Status ID: ");
             newTask.currentStatusId = Convert.ToInt32(System.Console.ReadLine() ?? "0");
 
-            var response = apiClient.PostToken($"projects/{projectId}/groups/{groupId}/tasks", newTask, userToken);
+            var response = apiClient.PostToken($"groups/{groupId}/projects/{projectId}/tasks", newTask, userToken);
             var content = response.Content.ReadAsStringAsync().Result;
             if (response.IsSuccessStatusCode)
             {
@@ -59,7 +59,7 @@ namespace TaskMgmt.Console.Services
     {
         public string description { get; set; }
         public DateTime dueDate { get; set; }
-        public string assigneeEmail { get; set; }
+        public string assigneeMail { get; set; }
         public int currentStatusId { get; set; }
     }
 

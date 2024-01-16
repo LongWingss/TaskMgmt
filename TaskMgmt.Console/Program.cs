@@ -11,7 +11,7 @@ static class Program
         GroupService groupService = new GroupService(userService.userToken);
         ProjectService projectService = new ProjectService(userService.userToken);
         TaskService taskService = new TaskService();
-        TaskStatusService statusService = new();
+        TaskStatusService statusService = new TaskStatusService();
 
         while (true)
         {
@@ -57,11 +57,14 @@ static class Program
                                             var projectId = Convert.ToInt32(Console.ReadLine() ?? "0");
                                             statusService.GetTasks(userService.db.token, userService.db.groupId, projectId);
                                             taskService.GetTasks(userService.db.token, userService.db.groupId, projectId);
-                                            System.Console.WriteLine("1. Create New Task\n2. Go Back");
+                                            System.Console.WriteLine("1. Create New Task\n2. Create New Task Status\n3. Go Back\n");
                                             switch (Console.ReadLine() ?? string.Empty)
                                             {
                                                 case "1":
                                                     taskService.CreateTask(userService.db.token, userService.db.groupId, projectId);
+                                                    break;
+                                                case "2":
+                                                    statusService.CreateTaskStatus(userService.db.token, userService.db.groupId, projectId);
                                                     break;
                                                 default:
                                                     break;
