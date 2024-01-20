@@ -2,6 +2,9 @@ namespace TaskMgmt.DataAccess.UnitOfWork
 {
     public interface IUnitOfWork : IDisposable
     {
-        Task<int> CommitAsync();
+        public Task<int> CommitAsync();
+        public Task BeginTransactionAsync();
+        public Task CommitTransactionAsync();
+        public Task RollbackAsync();
     }
 }

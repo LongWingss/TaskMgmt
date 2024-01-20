@@ -13,7 +13,7 @@ namespace TaskMgmt.Api.Controllers
         private readonly IUserService _userService;
         private readonly ILoggerManager _logger;
 
-        public LoginController(IUserService userService , ILoggerManager logger)
+        public LoginController(IUserService userService, ILoggerManager logger)
         {
             _userService = userService;
             _logger = logger;
@@ -26,10 +26,12 @@ namespace TaskMgmt.Api.Controllers
             try
             {
                 string token = await _userService.Authenticate(loginDto.Email, loginDto.Password);
+                _logger.LogInfo($"User '{loginDto.Email}' successfully authenticated.");
                 return Ok(token);
             }
             catch (UnauthorizedAccessException ex)
             {
+                _logger.LogError($"Authentication failed for user '{loginDto.Email}': {ex.Message}");
                 return Unauthorized(ex.Message);
             }
 
@@ -43,13 +45,13 @@ namespace TaskMgmt.Api.Controllers
                 if (signUpDto.ReferralCode == null)
                 {
                     string token = await _userService.SignUp(signUpDto.Email, signUpDto.Password, signUpDto.Name, signUpDto.GroupName);
-                    _logger.LogInfo("User SignUp Successfull.");
+                    _logger.LogInfo($"User '{signUpDto.Email}' SignUp successful.");
                     return Ok(token);
                 }
                 else
                 {
                     string token = await _userService.SignUpWithReferral(signUpDto.Email, signUpDto.Password, signUpDto.Name, signUpDto.ReferralCode, signUpDto.GroupName);
-                    _logger.LogInfo("User SignUp Successfull.");
+                    _logger.LogInfo($"User '{signUpDto.Email}' SignUp with referral successful.");
                     return Ok(token);
                 }
             }
