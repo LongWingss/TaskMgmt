@@ -9,6 +9,7 @@ using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
 using TaskMgmt.Services;
 using TaskMgmt.Services.CustomExceptions;
+using TaskMgmt.Services.Logger;
 using Group = TaskMgmt.DataAccess.Models.Group;
 
 namespace TaskMgmt.Api.Controllers
@@ -18,9 +19,11 @@ namespace TaskMgmt.Api.Controllers
     public class GroupsController : Controller
     {
         private readonly IGroupService _groupService;
-        public GroupsController(IGroupService groupService, IUserService userService)
+        private readonly ILoggerManager _logger;
+        public GroupsController(IGroupService groupService, ILoggerManager logger)
         {
             _groupService = groupService;
+            _logger = logger;
         }
         [HttpGet]
         [Authorize]
@@ -31,6 +34,7 @@ namespace TaskMgmt.Api.Controllers
                 if (int.TryParse(User.FindFirst("UserId").Value, out int userid))
                 {
                     var groups = await _groupService.GetAll(userid);
+                    _logger.LogInfo($"Retrieved groups for User '{userid}'.");
                     return Ok(groups);
                 }
                 else
@@ -40,25 +44,11 @@ namespace TaskMgmt.Api.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Error while getting groups: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
 
         }
-
-        // [Authorize]
-        // [HttpGet("{id}")]
-        // public async Task<IActionResult> GetById(int id)
-        // {
-        //     try
-        //     {
-        //         var group = await _groupService.GetById(id);
-        //         return Ok(group);
-        //     }
-        //     catch (GroupNotFoundException ex)
-        //     {
-        //         return BadRequest(ex.Message);
-        //     }
-        // }
 
         [Authorize]
         [HttpPost]
@@ -72,15 +62,18 @@ namespace TaskMgmt.Api.Controllers
                 var group = new Group { GroupName = groupDto.GroupName };
                 var userId = Convert.ToInt32(User.FindFirst("UserId").Value);
                 var createdGroup = await _groupService.Add(group, userId);
+                _logger.LogInfo($"Group '{group.GroupName}' created by User '{userId}'.");
                 return Created("Created", createdGroup);
 
             }
             catch (GroupAlreadyExistsException ex)
             {
+                _logger.LogError($"Group creation failed: {ex.Message}");
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
+                _logger.LogError($"Error while adding a group: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
@@ -92,6 +85,7 @@ namespace TaskMgmt.Api.Controllers
             {
                 int userId = Convert.ToInt32(User.FindFirst("UserId").Value);
                 var invitationId = await _groupService.InviteUser(userId, groupId, email.Email);
+                _logger.LogInfo($"User '{userId}' invited {email.Email} to Group '{groupId}'.");
                 return Ok(invitationId);
             }
             catch (Exception ex)
@@ -108,6 +102,7 @@ namespace TaskMgmt.Api.Controllers
             {
                 int userId = int.Parse(User.FindFirstValue("UserId"));
                 await _groupService.Enroll(userId, invitation.GroupName, invitation.ReferralCode);
+                _logger.LogInfo($"User '{userId}' enrolled in Group '{invitation.GroupName}'.");
                 return Ok();
             }
             catch (Exception ex)
