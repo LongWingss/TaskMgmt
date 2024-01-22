@@ -4,6 +4,7 @@ using TaskMgmt.DataAccess.Repositories;
 using TaskMgmt.Services.DTOs;
 using TaskMgmt.Services.CustomExceptions;
 using TaskMgmt.Services.Interfaces;
+using TaskMgmt.DataAccess.UnitOfWork;
 
 namespace TaskMgmt.Services.ProjectTasks
 {
@@ -13,22 +14,25 @@ namespace TaskMgmt.Services.ProjectTasks
         private readonly IUserRepository _userRepository;
         private readonly IProjectTaskRepository _projectTaskRepository;
         private readonly IProjectRepository _projectRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public ProjectTaskService(
             INotificationService notificationService,
             IProjectTaskRepository projectTaskRepo,
             IUserRepository userRepo,
-            IProjectRepository projectRepo)
+            IProjectRepository projectRepo,
+            IUnitOfWork unitOfWork)
         {
             _notificationService = notificationService;
             _projectTaskRepository = projectTaskRepo;
             _userRepository = userRepo;
             _projectRepository = projectRepo;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<ProjectTaskDto?> Get(int taskId)
         {
-            var currentTask = await _projectTaskRepository.GetById(taskId);
+            var currentTask = _projectTaskRepository.GetById(taskId);
             if (currentTask == null)
             {
                 return null;
@@ -48,7 +52,7 @@ namespace TaskMgmt.Services.ProjectTasks
 
         public async Task<IEnumerable<ProjectTaskDto>> GetAll(int groupId, int projectId)
         {
-            var allProjectTasks = await _projectTaskRepository.GetAll();
+            var allProjectTasks = _projectTaskRepository.GetAll();
             var currProjectTasks = allProjectTasks
                         .Where(a => a.ProjectId == projectId && a.Project.GroupId == groupId)
                         .ToList();
@@ -72,7 +76,7 @@ namespace TaskMgmt.Services.ProjectTasks
 
         public async Task<ProjectTaskDto> CreateTask(int userId, int groupId, int projectId, NewTaskDto newTask)
         {
-            var project = await _projectRepository.GetByIdAsync(groupId, projectId);
+            var project = _projectRepository.GetById(groupId, projectId);
             if (project is null)
             {
                 throw new ProjectNotFoundException("Project not found");
@@ -94,9 +98,10 @@ namespace TaskMgmt.Services.ProjectTasks
                 ProjectId = projectId,
                 CurrentStatusId = newTask.CurrentStatusId
             };
-            await _projectTaskRepository.Add(task);
+            _projectTaskRepository.Add(task);
+            await _unitOfWork.CommitAsync();
             await _notificationService.NotifyAsync(task.Assignee.Email, "New Task Assigned", task.Description);
-            var created = await _projectTaskRepository.GetById(task.ProjectTaskId);
+            var created = _projectTaskRepository.GetById(task.ProjectTaskId);
 
             return new ProjectTaskDto
             {

@@ -17,23 +17,23 @@ namespace TaskMgmt.DataAccess.Repositories
             _dBcontext = dBcontext;
         }
 
-        public async Task<IEnumerable<ProjectTaskStatus>> GetAll()
+        public IEnumerable<ProjectTaskStatus> GetAll()
         {
-            return await _dBcontext.ProjectTaskStatuses
+            return _dBcontext.ProjectTaskStatuses
                             .Include(e => e.Project)
-                            .ToListAsync();
+                            .ToList();
         }
 
-        public async Task<ProjectTaskStatus?> GetById(int Id)
+        public ProjectTaskStatus? GetById(int Id)
         {
-            var status = await _dBcontext.ProjectTaskStatuses.Where(t => t.ProjectTaskStatusId == Id).Include(e => e.ProjectId).SingleOrDefaultAsync();
+            var status = _dBcontext.ProjectTaskStatuses.Where(t => t.ProjectTaskStatusId == Id).Include(e => e.ProjectId).SingleOrDefault();
             return status;
         }
 
-        public async Task Add(ProjectTaskStatus status)
+        public void Add(ProjectTaskStatus status)
         {
             _dBcontext.ProjectTaskStatuses.Add(status);
-            await _dBcontext.SaveChangesAsync();
+            _dBcontext.SaveChanges();
         }
 
         public void InitProjectStatus(Project project, Dictionary<string, string>? statusColorPairs = null)

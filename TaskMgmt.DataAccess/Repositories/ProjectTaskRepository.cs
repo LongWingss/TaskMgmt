@@ -17,30 +17,30 @@ namespace TaskMgmt.DataAccess.Repositories
             _dBcontext = dBcontext;
         }
 
-        public async Task<ICollection<ProjectTask>> GetAll()
+        public  ICollection<ProjectTask> GetAll()
         {
-            return await _dBcontext.ProjectTasks
+            return  _dBcontext.ProjectTasks
                             .Include(e => e.Project)
                             .Include(e => e.Assignee)
                             .Include(e => e.Creator)
                             .Include(e => e.CurrentStatus)
-                            .ToListAsync();
+                            .ToList();
         }
 
-        public async Task<ProjectTask?> GetById(int Id)
+        public ProjectTask? GetById(int Id)
         {
-            var task = await _dBcontext.ProjectTasks.Where(t => t.ProjectTaskId == Id)
+            var task = _dBcontext.ProjectTasks.Where(t => t.ProjectTaskId == Id)
                             .Include(e => e.Assignee)
                             .Include(e => e.Creator)
                             .Include(e => e.CurrentStatus)
-                            .SingleOrDefaultAsync();
+                            .SingleOrDefault();
             return task;
         }
 
-        public async Task Add(ProjectTask task)
+        public void Add(ProjectTask task)
         {
-            await _dBcontext.ProjectTasks.AddAsync(task);
-            await _dBcontext.SaveChangesAsync();
+            _dBcontext.ProjectTasks.Add(task);
+
         }
     }
 }

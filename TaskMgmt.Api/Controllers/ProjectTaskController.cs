@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TaskMgmt.Api.Attributes;
 using TaskMgmt.Services.CustomExceptions;
 using TaskMgmt.Services.DTOs;
@@ -24,7 +23,6 @@ namespace TaskMgmt.Api.Controllers
         // GET: api/{ProjectId}/
         [HttpGet]
         [GroupMembershipAuthorize("groupId")]
-        [Authorize]
         public async Task<IActionResult> GetAll(int groupId, int projectId)
         {
             var values = await _projectTaskService.GetAll(groupId, projectId);
@@ -34,7 +32,6 @@ namespace TaskMgmt.Api.Controllers
         // GET api/<TasksController>/5
         [HttpGet("{taskId}")]
         [GroupMembershipAuthorize("groupId")]
-        [Authorize]
         public async Task<IActionResult> GetById(int taskId)
         {
             var value = await _projectTaskService.Get(taskId);
@@ -48,7 +45,6 @@ namespace TaskMgmt.Api.Controllers
         // POST api/<TasksController>
         [HttpPost]
         [GroupMembershipAuthorize("groupId")]
-        [Authorize]
         public async Task<IActionResult> CreateTask(int groupId, int projectId, [FromBody] NewTaskDto obj)
         {
             try

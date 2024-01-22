@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
+using TaskMgmt.DataAccess.UnitOfWork;
 using TaskMgmt.Services.CustomExceptions;
 using TaskMgmt.Services.DTOs;
 
@@ -15,15 +16,18 @@ namespace TaskMgmt.Services.ProjectTasks
         private readonly IProjectTaskStatusRepository _projectTaskStatusRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public ProjectTaskStatusService(
             IProjectTaskStatusRepository projectTaskStatusRepository,
             IProjectRepository projectRepository,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            IUnitOfWork unitOfWork)
         {
             _projectTaskStatusRepository = projectTaskStatusRepository;
             _projectRepository = projectRepository;
             _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
 
 
@@ -31,7 +35,7 @@ namespace TaskMgmt.Services.ProjectTasks
         {
 
             var user = await _userRepository.GetById(userId);
-            var project = await _projectRepository.GetByIdAsync(groupId, projectId);
+            var project = _projectRepository.GetById(groupId, projectId);
             if (project?.OwnerId != user.UserId) throw new Exception("User unauthorized");
 
             var status = new ProjectTaskStatus
@@ -40,7 +44,9 @@ namespace TaskMgmt.Services.ProjectTasks
                 StatusText = newStatus.StatusText,
                 StatusColor = newStatus.StatusColor
             };
-            await _projectTaskStatusRepository.Add(status);
+            _projectTaskStatusRepository.Add(status);
+
+            await _unitOfWork.CommitAsync();
 
             return new ProjectTaskStatusDto
             {
@@ -53,7 +59,7 @@ namespace TaskMgmt.Services.ProjectTasks
 
         public async Task<IEnumerable<ProjectTaskStatusDto>> GetAll(int projectId)
         {
-            var allStatuses = await _projectTaskStatusRepository.GetAll();
+            var allStatuses = _projectTaskStatusRepository.GetAll();
             var projectStatus = allStatuses.ToList().Where(i => i.ProjectId == projectId);
             var results = new List<ProjectTaskStatusDto>();
             foreach (var status in projectStatus) {
@@ -72,7 +78,7 @@ namespace TaskMgmt.Services.ProjectTasks
 
         public async Task<ProjectTaskStatusDto?> GetById(int id)
         {
-            var task=await _projectTaskStatusRepository.GetById(id);
+            var task= _projectTaskStatusRepository.GetById(id);
             if (task == null) return null;               
             var obj = new ProjectTaskStatusDto{
                 ProjectTaskStatusId = task.ProjectTaskStatusId,

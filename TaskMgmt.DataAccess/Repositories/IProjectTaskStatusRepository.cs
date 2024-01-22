@@ -9,9 +9,9 @@ namespace TaskMgmt.DataAccess.Repositories
 {
     public interface IProjectTaskStatusRepository
     {
-        public Task<IEnumerable<ProjectTaskStatus>> GetAll();
-        public Task<ProjectTaskStatus?> GetById(int id);
-        public Task Add(ProjectTaskStatus status);
+        public IEnumerable<ProjectTaskStatus> GetAll();
+        public ProjectTaskStatus? GetById(int id);
+        public void Add(ProjectTaskStatus status);
         public void InitProjectStatus(Project project, Dictionary<string, string>? statusColorPairs = null);
     }
 }
