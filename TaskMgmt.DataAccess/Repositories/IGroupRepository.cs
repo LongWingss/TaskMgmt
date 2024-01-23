@@ -3,15 +3,15 @@ namespace TaskMgmt.DataAccess.Repositories
 {
     public interface IGroupRepository
     {
-        public Task<Group> GetById(int id);
-        public Task<Group[]> GetAll(int userid);
-        public Task<int> Add(Group group);
-        public Task<bool> CheckExists(string name);
-        public Task<Invitation> InviteUser(int userId, int groupId, string inviteeEmail);
-        public Task<Invitation> GetInvitationByRefCode(string refCode);
+        public Group GetById(int id);
+        public Group[] GetAll(int userid);
+        public void Add(Group group);
+        public bool CheckExists(string name);
+        public Invitation InviteUser(User user ,Group group, string inviteeEmail);
+        public Invitation GetInvitationByRefCode(string refCode);
 
-        public Task Enroll(UserGroup usergrp);
-        public Task UpdateInvitation(Invitation invitation);
+        public void Enroll(UserGroup usergroup);
+        public void UpdateInvitation(Invitation invitation);
 
        // public Task InviteUSer(Invitation invitation);
        // public Task<int> GetGroupIdFromReferralCode(string referralCode);

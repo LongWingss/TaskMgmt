@@ -3,13 +3,13 @@ namespace TaskMgmt.DataAccess.Repositories
 {
     public interface IUserRepository
     {
-        public Task<IEnumerable<User>> Get();
-        public Task<User> GetByEmail(string email);
-        public Task<User> GetById(int userId);
-        public Task<int> Add(User user);
-        public Task<bool> UserExists(string email);
-        public Task EnrollUserToGroup(int userId, int groupId, bool isAdmin);
+        public IEnumerable<User> Get();
+        public User GetByEmail(string email);
+        public User GetById(int userId);
+        public void Add(User user);
+        public bool UserExists(string email);
+        public void EnrollUserToGroup(User user,Group group, bool isAdmin);
 
-        public Task<bool> IsMember(int userId,int groupId);
+        public bool IsMember(int userId,int groupId);
     }
 }

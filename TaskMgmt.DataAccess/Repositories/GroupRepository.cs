@@ -15,62 +15,58 @@ namespace TaskMgmt.DataAccess.Repositories
         {
             _context = context;
         }
-        public async Task<int> Add(Group group)
+        public void Add(Group group)
         {
             _context.Groups.Add(group);
-            await _context.SaveChangesAsync();
-            return group.GroupId;
         }
-        public async Task<Group> GetById(int id)
+        public  Group GetById(int id)
         {
-            return await _context.Groups.FindAsync(id);
+            return  _context.Groups.Find(id);
         }
-        public async Task<Group[]> GetAll(int userid)
+        public Group[] GetAll(int userid)
         {
-            // return await _context.Groups.ToArrayAsync();
-            var userGroups = await _context.UserGroups.Include(ug => ug.Group).Where(ug => ug.UserId == userid).ToArrayAsync();
-            return userGroups.Select(ug => ug.Group).ToArray();
+                        return _context.UserGroups
+                              .Include(ug => ug.Group)
+                              .Where(ug => ug.UserId == userid)
+                              .Select(ug=>ug.Group)
+                              .ToArray();
         }
 
-        public async Task<bool> CheckExists(string name)
+        public bool CheckExists(string name)
         {
-            return await _context.Groups.AnyAsync(g => g.GroupName == name);
+            return _context.Groups.Any(g => g.GroupName == name);
         }
         public int GenerateRefCode()
         {
             var random = new Random();
             return random.Next(100000, 999999);
         }
-        public async Task<Invitation> InviteUser(int userId, int groupId, string inviteeEmail)
+        public Invitation InviteUser(User user, Group group , string inviteeEmail)
         {
             var refcode = GenerateRefCode();
             var invitation = new Invitation
             {
-                GroupId = groupId,
-                InvitedByUser = userId,
+                Group = group,
+                InvitedByUserNavigation = user,
                 InviteeEmail = inviteeEmail,
                 Token = refcode.ToString(),
                 CreatedAt = DateTime.UtcNow
             };
             _context.Invitations.Add(invitation);
-            await _context.SaveChangesAsync();
             return invitation;
         }
-        public async Task<Invitation> GetInvitationByRefCode(string refCode)
+        public  Invitation GetInvitationByRefCode(string refCode)
         {
-            var invitation = await _context.Invitations.Include(x => x.Group).Where(x => x.Token == refCode).FirstOrDefaultAsync();
-            return invitation;
+            return _context.Invitations.Include(x => x.Group).Where(x => x.Token == refCode).FirstOrDefault();
         }
 
-        public async Task Enroll(UserGroup usergrp)
+        public void Enroll(UserGroup usergroup)
         {
-            _context.UserGroups.Add(usergrp);
-            await _context.SaveChangesAsync();
+            _context.UserGroups.Add(usergroup);
         }
-        public async Task UpdateInvitation(Invitation invitation)
+        public void UpdateInvitation(Invitation invitation)
         {
             _context.Invitations.Update(invitation);
-            await _context.SaveChangesAsync();
         }
 
         //public async Task<int> GetGroupIdFromReferralCode(string referralCode)
