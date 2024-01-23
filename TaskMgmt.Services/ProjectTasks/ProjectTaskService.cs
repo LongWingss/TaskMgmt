@@ -82,7 +82,7 @@ namespace TaskMgmt.Services.ProjectTasks
                 throw new ProjectNotFoundException("Project not found");
             }
 
-            var assignee = await _userRepository.GetByEmail(newTask.AssigneeMail);
+            var assignee = _userRepository.GetByEmail(newTask.AssigneeMail);
             if (assignee is null)
             {
                 throw new AssigneeNotFoundException("Assignee not found");
