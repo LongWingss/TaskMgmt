@@ -477,3 +477,4 @@ $RECYCLE.BIN/
 *.lnk
 
 **/internallog.txt
+TaskMgmt.Api/.\\internal_logs\\internallog.txt
