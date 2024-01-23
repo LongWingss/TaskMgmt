@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TaskMgmt.DataAccess;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
+using TaskMgmt.DataAccess.UnitOfWork;
 using TaskMgmt.Services.CustomExceptions;
 using TaskMgmt.Services.Helpers;
 using TaskMgmt.Services.Interfaces;
@@ -19,17 +20,19 @@ namespace TaskMgmt.Services
         private readonly IGroupRepository _groupRepository;
         private readonly IUserRepository _userRepository;
         private readonly INotificationService _notificationService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GroupService(IGroupRepository groupRepository, INotificationService notificationService, IUserRepository userRepository)
+        public GroupService(IGroupRepository groupRepository, INotificationService notificationService, IUserRepository userRepository,IUnitOfWork unitOfWork)
         {
             _groupRepository = groupRepository;
             _notificationService = notificationService;
             _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Group> GetById(int id)
         {
-            var group = await _groupRepository.GetById(id);
+            var group =  _groupRepository.GetById(id);
             if (group == null)
             {
                 throw new GroupNotFoundException("Group Not Found");
@@ -39,57 +42,87 @@ namespace TaskMgmt.Services
 
         public async Task<Group[]> GetAll(int userid)
         {
-            var groups = await _groupRepository.GetAll(userid);
+            var groups =  _groupRepository.GetAll(userid);
             return groups;
         }
 
-        public async Task<int> Add(Group group, int userId)
+        public async Task<int> Add(Group group, User user)
         {
-            bool exists = await _groupRepository.CheckExists(group.GroupName);
-            if (exists)
+            try
             {
-                throw new GroupAlreadyExistsException("Group already exists");
-            }
-            else
-            {
-                await _groupRepository.Add(group);
-                await _groupRepository.Enroll(new UserGroup
+
+                bool exists = _groupRepository.CheckExists(group.GroupName);
+                if (exists)
                 {
-                    GroupId = group.GroupId,
-                    UserId = userId,
-                });
-                return group.GroupId;
+                    throw new GroupAlreadyExistsException("Group already exists");
+                }
+                else
+                {
+                    _groupRepository.Add(group);
+                    _groupRepository.Enroll(new UserGroup
+                    {
+                        Group = group,
+                        User = user,
+                    });
+
+                    await _unitOfWork.CommitAsync();
+
+                    return group.GroupId;
+                }
+
+            }
+            catch(Exception ex)
+            {
+
+                throw ex;
             }
         }
 
         public async Task Enroll(int userId, string groupName, string referralCode)
         {
-            User user = await _userRepository.GetById(userId);
-
-            var invitation = await _groupRepository.GetInvitationByRefCode(referralCode);
-
-            if (invitation.Group.GroupName != groupName || invitation.InviteeEmail != user.Email)
+            try
             {
-                throw new Exception("Invalid referral code");
+
+                User user = _userRepository.GetById(userId);
+
+                var invitation = _groupRepository.GetInvitationByRefCode(referralCode);
+
+                if (invitation == null)
+                {
+                    throw new Exception("No invitation found");
+                }
+
+                if (invitation.Group.GroupName != groupName || invitation.InviteeEmail != user.Email)
+                {
+                    throw new Exception("Invalid referral code");
+                }
+
+                var enrollment = new UserGroup
+                {
+                    GroupId = (int)invitation.GroupId,
+                    UserId = userId,
+                    IsAdmin = false,
+                };
+                _groupRepository.Enroll(enrollment);
+                invitation.Status = true;
+                _groupRepository.UpdateInvitation(invitation);
+                await _unitOfWork.CommitAsync();
+
             }
-
-            var enrollment = new UserGroup
+            catch(Exception ex)
             {
-                GroupId = (int)invitation.GroupId,
-                UserId = userId,
-                IsAdmin = false,
-            };
-            await _groupRepository.Enroll(enrollment);
-            invitation.Status = true;
-            await _groupRepository.UpdateInvitation(invitation);
+
+                throw new InvalidOperationException("Error during enrollment", ex);
+            }
         }
         public async Task<int> InviteUser(int userId, int groupId, string inviteeEmail)
         {
             try
             {
-                Invitation invitation = await _groupRepository.InviteUser(userId, groupId, inviteeEmail);
-                var group = await _groupRepository.GetById(groupId);
-                User user = await _userRepository.GetById(userId);
+                Group group = _groupRepository.GetById(groupId);
+                User user = _userRepository.GetById(userId);
+                Invitation invitation =  _groupRepository.InviteUser(user, group, inviteeEmail);
+                await _unitOfWork.CommitAsync();
                 string subject = $"{user.Username} invited you to join the Group {group.GroupName}";
                 string message = $"Please use this code to join the Group: {invitation.Token}";
                 await _notificationService.NotifyAsync(inviteeEmail, subject, message);

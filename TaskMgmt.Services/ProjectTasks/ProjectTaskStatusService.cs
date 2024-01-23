@@ -30,7 +30,7 @@ namespace TaskMgmt.Services.ProjectTasks
         public async Task<ProjectTaskStatusDto> Add(int userId, int groupId, int projectId, ProjectTaskStatusCreateDto newStatus)
         {
 
-            var user = await _userRepository.GetById(userId);
+            var user = _userRepository.GetById(userId);
             var project = await _projectRepository.GetByIdAsync(groupId, projectId);
             if (project?.OwnerId != user.UserId) throw new Exception("User unauthorized");
 

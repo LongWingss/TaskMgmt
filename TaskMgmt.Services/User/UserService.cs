@@ -48,7 +48,7 @@ namespace TaskMgmt.Services
         }
         public async Task<string> Authenticate(string email, string enteredPassword)
         {
-            var user = await _userRepository.GetByEmail(email);
+            var user =  _userRepository.GetByEmail(email);
             if (user != null)
             {
                 if (VerifyPassword(enteredPassword, user.PasswordHash))
@@ -68,39 +68,43 @@ namespace TaskMgmt.Services
         {
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
-                bool exists = await _userRepository.UserExists(email);
+
+                bool exists =  _userRepository.UserExists(email);
                 if (exists)
                 {
                     throw new UserAlreadyExistsException("User already exists");
                 }
-                exists = await _groupRepository.CheckExists(groupName);
+                exists =  _groupRepository.CheckExists(groupName);
                 if (exists)
                 {
                     throw new GroupAlreadyExistsException("Group already exists");
                 }
 
-                int groupId = await _groupRepository.Add(new Group
+                // TODO : change this to Group as return
+                Group defaultGroup = new Group
                 {
                     GroupName = groupName,
-                });
+                };
+                 _groupRepository.Add(defaultGroup);
 
-                int userId = await _userRepository.Add(new User
+                User signupUser = new User
                 {
                     Username = name,
                     Email = email,
                     PasswordHash = EncryptPassword(enteredPassword),
-                    DefaultGroupId = groupId,
-                });
-                await _userRepository.EnrollUserToGroup(userId, groupId, isAdmin: true);
+                    DefaultGroup = defaultGroup,
+                };
 
-                await _unitOfWork.CommitTransactionAsync();
+                 _userRepository.Add(signupUser);
+                 _userRepository.EnrollUserToGroup(signupUser, defaultGroup, isAdmin: true);
 
-                return _jwtHelper.GenerateToken(userId);
+                await _unitOfWork.CommitAsync();
+
+                return _jwtHelper.GenerateToken(signupUser.UserId);
             }
             catch (Exception e)
             {
-                await _unitOfWork.RollbackAsync();
+
                 return e.Message;
             }
         }
@@ -109,15 +113,15 @@ namespace TaskMgmt.Services
         {
             try
             {
-                await _unitOfWork.BeginTransactionAsync();
-                Invitation invitation = await _groupRepository.GetInvitationByRefCode(referralCode) ?? throw new Exception("Invitation not found");
+
+                Invitation invitation =  _groupRepository.GetInvitationByRefCode(referralCode) ?? throw new Exception("Invitation not found");
                 Group group = invitation.Group;
 
                 if (email != invitation.InviteeEmail)
                 {
                     throw new Exception("Invalid email");
                 }
-                bool exists = await _userRepository.UserExists(email);
+                bool exists = _userRepository.UserExists(email);
                 if (exists)
                 {
                     throw new UserAlreadyExistsException("User already exists");
@@ -132,36 +136,38 @@ namespace TaskMgmt.Services
                     throw new Exception("User already enrolled!");
                 }
 
-                int userId = await _userRepository.Add(new User
+                User signUpUser = new User
                 {
                     Username = name,
                     Email = email,
                     PasswordHash = EncryptPassword(enteredPassword),
-                    DefaultGroupId = invitation.GroupId,
-                });
+                    DefaultGroup = invitation.Group,
+                };
 
-                await _userRepository.EnrollUserToGroup(userId, (int)invitation.GroupId, isAdmin: false);
+                _userRepository.Add(signUpUser);
+
+                 _userRepository.EnrollUserToGroup(signUpUser, invitation.Group, isAdmin: false);
                 invitation.Status = true;
-                await _groupRepository.UpdateInvitation(invitation);
-                await _unitOfWork.CommitTransactionAsync();
+                _groupRepository.UpdateInvitation(invitation);
+                await _unitOfWork.CommitAsync();
 
-                return _jwtHelper.GenerateToken(userId);
+                return _jwtHelper.GenerateToken(signUpUser.UserId);
             }
             catch (Exception e)
             {
-                await _unitOfWork.RollbackAsync();
+
                 return e.Message;
             }
         }
 
         public async Task<bool> IsUserInGroup(int userId, int groupId)
         {
-            return await _userRepository.IsMember(userId, groupId);
+            return  _userRepository.IsMember(userId, groupId);
         }
 
         public async Task<User> GetUserById(int userId)
         {
-            return await _userRepository.GetById(userId);
+            return _userRepository.GetById(userId);
         }
     }
 }

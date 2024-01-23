@@ -19,10 +19,12 @@ namespace TaskMgmt.Api.Controllers
     public class GroupsController : Controller
     {
         private readonly IGroupService _groupService;
+        private readonly IUserService _userservice;
         private readonly ILoggerManager _logger;
-        public GroupsController(IGroupService groupService, ILoggerManager logger)
+        public GroupsController(IGroupService groupService,IUserService userservice ,ILoggerManager logger)
         {
             _groupService = groupService;
+            _userservice = userservice;
             _logger = logger;
         }
         [HttpGet]
@@ -61,9 +63,10 @@ namespace TaskMgmt.Api.Controllers
 
                 var group = new Group { GroupName = groupDto.GroupName };
                 var userId = Convert.ToInt32(User.FindFirst("UserId").Value);
-                var createdGroup = await _groupService.Add(group, userId);
+                var user = await _userservice.GetUserById(userId);
+                var createdGroup = await _groupService.Add(group, user);
                 _logger.LogInfo($"Group '{group.GroupName}' created by User '{userId}'.");
-                return Created("Created", createdGroup);
+                return Created("Created", group);
 
             }
             catch (GroupAlreadyExistsException ex)
