@@ -1,0 +1,8 @@
+<!-- <p>wizard-step works!</p> -->
+<div class="tab-pane" role="tabpanel" [attr.id]="'step' + (index + 1)" [class.active]="isActive">
+    <ng-content></ng-content>
+    <ul class="list-inline pull-right">
+      <li *ngIf="currentStep !== 0"><button type="button" class="btn btn-default prev-step" (click)="previousStep()">Previous</button></li>
+      <li *ngIf="currentStep !== stepsLength - 1"><button type="button" class="btn btn-primary next-step" (click)="nextStep()">Save and continue</button></li>
+    </ul>
+  </div>

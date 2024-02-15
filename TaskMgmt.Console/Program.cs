@@ -16,7 +16,7 @@ static class Program
         while (true)
         {
 
-            Console.Clear();
+            //Console.Clear();
             Console.WriteLine("Welcome to the Task Management Console App!");
             
             try
