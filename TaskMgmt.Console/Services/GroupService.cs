@@ -66,7 +66,7 @@ namespace TaskMgmt.Console.Services
             };
             try
             {
-                var response = apiClient.PostToken("enrollments", invitationDTO , userToken);
+                var response = apiClient.PostToken("groups/enrollments", invitationDTO , token);
                 if (response.IsSuccessStatusCode)
                 {
                     System.Console.WriteLine("Successfully Enrolled");
