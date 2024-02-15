@@ -1,0 +1,27 @@
+<!-- <p>wizard works!</p> -->
+<div class="container">
+    <div class="row">
+      <section>
+        <div class="wizard">
+          <div class="wizard-inner">
+            <div class="connecting-line"></div>
+            <ul class="nav nav-tabs" role="tablist">
+              <li *ngFor="let step of steps; let i = index" [class.active]="i === currentStep" [class.disabled]="i > currentStep">
+                <a (click)="changeStep(i)" data-toggle="tab" role="tab" [attr.aria-controls]="'step' + (i + 1)" title="{{ 'Step ' + (i + 1) }}">
+                  <span class="round-tab">
+                    <i class="glyphicon" [ngClass]="step.iconClass"></i>
+                  </span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <form role="form">
+            <div class="tab-content">
+              <ng-content></ng-content>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </div>
