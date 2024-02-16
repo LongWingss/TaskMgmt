@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using TaskMgmt.Services;
 
 namespace TaskMgmt.Api.Attributes
 {
-    public class GroupMembershipAuthorizeAttribute : Attribute, IAuthorizationFilter
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    public class GroupMembershipAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
     {
-       
+
         private readonly string _groupIdParameterName;
 
         public GroupMembershipAuthorizeAttribute(string groupIdParameterName)
@@ -15,10 +15,10 @@ namespace TaskMgmt.Api.Attributes
             _groupIdParameterName = groupIdParameterName;
         }
 
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
 
-             IUserService _userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
+            IUserService _userService = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
 
             if (!int.TryParse(context.HttpContext.Request.RouteValues[_groupIdParameterName]?.ToString(), out int groupId))
             {
@@ -31,7 +31,7 @@ namespace TaskMgmt.Api.Attributes
                 context.Result = new BadRequestObjectResult("Invalid user id");
                 return;
             }
-            bool isUserInGroup = _userService.IsUserInGroup(userId, groupId).GetAwaiter().GetResult();
+            bool isUserInGroup = await _userService.IsUserInGroup(userId, groupId);
             if (!isUserInGroup)
             {
                 context.Result = new UnauthorizedResult();
