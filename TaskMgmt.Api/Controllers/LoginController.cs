@@ -42,7 +42,7 @@ namespace TaskMgmt.Api.Controllers
         {
             try
             {
-                if (signUpDto.ReferralCode == null)
+                if (string.IsNullOrWhiteSpace(signUpDto.ReferralCode))
                 {
                     string token = await _userService.SignUp(signUpDto.Email, signUpDto.Password, signUpDto.Name, signUpDto.GroupName);
                     _logger.LogInfo($"User '{signUpDto.Email}' SignUp successful.");
