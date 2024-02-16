@@ -14,35 +14,44 @@ namespace TaskMgmt.DataAccess.Repositories
         public GroupRepository(TaskMgmntContext context)
         {
             _context = context;
+
         }
         public void Add(Group group)
         {
             _context.Groups.Add(group);
         }
-        public  Group GetById(int id)
+        public Group GetById(int id)
         {
-            return  _context.Groups.Find(id);
+            return _context.Groups.Find(id);
         }
         public Group[] GetAll(int userid)
         {
-                        return _context.UserGroups
-                              .Include(ug => ug.Group)
-                              .Where(ug => ug.UserId == userid)
-                              .Select(ug=>ug.Group)
-                              .ToArray();
+            return _context.UserGroups
+                  .Include(ug => ug.Group)
+                  .Where(ug => ug.UserId == userid)
+                  .Select(ug => ug.Group)
+                  .ToArray();
         }
 
         public bool CheckExists(string name)
         {
             return _context.Groups.Any(g => g.GroupName == name);
         }
-        public int GenerateRefCode()
+        private int GenerateRefCode()
         {
             var random = new Random();
             return random.Next(100000, 999999);
         }
-        public Invitation InviteUser(User user, Group group , string inviteeEmail)
+        public Invitation InviteUser(User user, Group group, string inviteeEmail)
         {
+
+
+            //var inviteeUser = GetUserByEmail(inviteeEmail);
+            if (_context.UserGroups.Include(x => x.User).Where(x => x.User.Email == inviteeEmail).FirstOrDefault() != null)
+            {
+                throw new Exception("User invited already part of the group.");
+            }
+
             var refcode = GenerateRefCode();
             var invitation = new Invitation
             {
@@ -54,8 +63,9 @@ namespace TaskMgmt.DataAccess.Repositories
             };
             _context.Invitations.Add(invitation);
             return invitation;
+
         }
-        public  Invitation GetInvitationByRefCode(string refCode)
+        public Invitation GetInvitationByRefCode(string refCode)
         {
             return _context.Invitations.Include(x => x.Group).Where(x => x.Token == refCode).FirstOrDefault();
         }
@@ -78,6 +88,13 @@ namespace TaskMgmt.DataAccess.Repositories
         //        .FirstOrDefaultAsync();
 
         //    return (int)group;
+        //}
+
+        //public User GetUserByEmail(string email)
+        //{
+        //    var user = _context.Users.FirstOrDefault(user => user.Email == email);
+        //    return user;
+
         //}
     }
 }

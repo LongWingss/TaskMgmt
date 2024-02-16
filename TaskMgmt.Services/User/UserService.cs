@@ -104,15 +104,13 @@ namespace TaskMgmt.Services
             }
             catch (Exception e)
             {
-
-                return e.Message;
+                throw e;
+                //return e.Message;
             }
         }
 
         public async Task<string> SignUpWithReferral(string email, string enteredPassword, string name, string referralCode, string groupName)
         {
-            try
-            {
 
                 Invitation invitation =  _groupRepository.GetInvitationByRefCode(referralCode) ?? throw new Exception("Invitation not found");
                 Group group = invitation.Group;
@@ -152,12 +150,7 @@ namespace TaskMgmt.Services
                 await _unitOfWork.CommitAsync();
 
                 return _jwtHelper.GenerateToken(signUpUser.UserId);
-            }
-            catch (Exception e)
-            {
-
-                return e.Message;
-            }
+            
         }
 
         public async Task<bool> IsUserInGroup(int userId, int groupId)
