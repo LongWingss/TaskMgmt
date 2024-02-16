@@ -1,19 +1,19 @@
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NLog;
 using TaskMgmt.Api.Profiles;
 using TaskMgmt.DataAccess.Models;
 using TaskMgmt.DataAccess.Repositories;
-using TaskMgmt.Services.Helpers;
+using TaskMgmt.DataAccess.UnitOfWork;
 using TaskMgmt.Services;
 using TaskMgmt.Services.ConfigurationClass;
+using TaskMgmt.Services.Helpers;
 using TaskMgmt.Services.Interfaces;
-using TaskMgmt.Services.ProjectTasks;
-using NLog;
 using TaskMgmt.Services.Logger;
-using TaskMgmt.DataAccess.UnitOfWork;
+using TaskMgmt.Services.ProjectTasks;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -32,7 +32,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
-builder.Services.AddScoped<IJwtHelper,JwtHelper>();
+builder.Services.AddScoped<IJwtHelper, JwtHelper>();
 // builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
 builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration"));
 builder.Services.AddScoped<INotificationService, EmailNotificationService>();
@@ -96,9 +96,10 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
+builder.Services.AddCors(options => options.AddPolicy(name: "AllowAll", builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
 var app = builder.Build();
+app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
