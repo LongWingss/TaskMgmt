@@ -40,9 +40,9 @@ namespace TaskMgmt.DataAccess.Repositories
         {
             var DefaultOptions = new Dictionary<string, string>
             {
-                { "open", "#FF0000" },
-                { "in progress", "#FFFF00" },
-                { "completed", "#00FF00" }
+                { "Not Started", "#FFFFFF" },
+                { "In Progress", "#FFFF00" },
+                { "Completed", "#00FF00" }
             };
 
             if (statusColorPairs is null)
